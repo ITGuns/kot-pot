@@ -10,16 +10,18 @@ import { currentAyce, groupAyce, todaysAyceGroup } from "@/lib/ayce";
 import { getMenuTree } from "@/lib/data/menu";
 import { getMedia } from "@/lib/data/media";
 import { getAyce, getRestaurant } from "@/lib/data/restaurant";
+import { joinWithin } from "@/lib/format";
 import { mediaForFile, toLite } from "@/lib/menu-types";
 import { getSiteChrome } from "@/lib/site";
 
 export async function generateMetadata(): Promise<Metadata> {
   const [r, tree] = await Promise.all([getRestaurant(), getMenuTree()]);
   const cat = tree.categories.find((c) => c.slug === "korean-bbq");
-  const names = cat?.sections.flatMap((s) => s.items.map((i) => i.name)).slice(0, 6).join(", ");
+  const lead = `${cat?.tagline ?? "Grill at your table"} at ${r.name} in ${r.city}, ${r.state}`;
+  const names = joinWithin(cat?.sections.flatMap((s) => s.items.map((i) => i.name)) ?? [], 150 - lead.length);
   return {
     title: "Korean BBQ",
-    description: `${cat?.tagline ?? "Grill at your table"} at ${r.name} in ${r.city}, ${r.state}${names ? `: ${names} and more` : ""}.`,
+    description: `${lead}${names ? `: ${names} and more` : ""}.`,
     alternates: { canonical: "/korean-bbq" },
   };
 }

@@ -90,7 +90,7 @@ export async function createReservation(raw: ReservationInput): Promise<ActionRe
           ),
         )
         .limit(1);
-      if (dup) throw new BookingError("You already have a reservation at this time. Check your email for the confirmation.", "duplicate");
+      if (dup) throw new BookingError("You already have a reservation at this time. Use the link from your original confirmation to view or change it, or call us.", "duplicate");
 
       const status = ctx.settings.autoConfirm && input.partySize < ctx.settings.largePartyThreshold ? "confirmed" : "pending";
       const manageToken = randomBytes(16).toString("hex");

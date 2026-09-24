@@ -83,6 +83,25 @@ export function daysLabel(days: number[] | null | undefined): string {
   return sorted.map((d) => DAY_SHORT[d]).join(", ");
 }
 
+/** Joins names with ", " until adding the next one would exceed `max` characters (used for meta descriptions). */
+export function joinWithin(names: string[], max: number): string {
+  let out = "";
+  for (const n of names) {
+    const next = out ? `${out}, ${n}` : n;
+    if (next.length > max) break;
+    out = next;
+  }
+  return out;
+}
+
+/** Accepts ISO strings and Postgres timestamptz text ("2026-09-22 16:58:33.414+00"). */
+export function parsePgTimestamp(value: string): Date {
+  let s = value.includes("T") ? value : value.replace(" ", "T");
+  if (/[+-]\d{2}$/.test(s)) s += ":00";
+  else if (!/[zZ]$|[+-]\d{2}:\d{2}$/.test(s)) s += "Z";
+  return new Date(s);
+}
+
 export function phoneHref(phone: string): string {
   return `tel:+1${phone.replace(/\D/g, "")}`;
 }
@@ -92,11 +111,7 @@ export function initials(first: string, last: string): string {
 }
 
 export function formatRelative(iso: string): string {
-  // Accepts ISO strings and Postgres timestamptz text ("2026-09-22 16:58:33.414+00").
-  let s = iso.includes("T") ? iso : iso.replace(" ", "T");
-  if (/[+-]\d{2}$/.test(s)) s += ":00";
-  else if (!/[zZ]$|[+-]\d{2}:\d{2}$/.test(s)) s += "Z";
-  const then = new Date(s).getTime();
+  const then = parsePgTimestamp(iso).getTime();
   if (Number.isNaN(then)) return "";
   const diff = Date.now() - then;
   const mins = Math.round(diff / 60000);

@@ -10,16 +10,18 @@ import { currentAyce, groupAyce, todaysAyceGroup } from "@/lib/ayce";
 import { getMenuTree } from "@/lib/data/menu";
 import { getMedia } from "@/lib/data/media";
 import { getAyce, getRestaurant } from "@/lib/data/restaurant";
+import { joinWithin } from "@/lib/format";
 import { mediaForFile, toLite } from "@/lib/menu-types";
 import { getSiteChrome } from "@/lib/site";
 
 export async function generateMetadata(): Promise<Metadata> {
   const [r, tree] = await Promise.all([getRestaurant(), getMenuTree()]);
   const cat = tree.categories.find((c) => c.slug === "hot-pot");
-  const names = cat?.sections.flatMap((s) => s.items.map((i) => i.name)).join(", ");
+  const lead = `${cat?.tagline ?? "Hot pot"} at ${r.name} in ${r.city}, ${r.state}. Broths: `;
+  const names = joinWithin(cat?.sections.flatMap((s) => s.items.map((i) => i.name)) ?? [], 152 - lead.length);
   return {
     title: "Hot Pot",
-    description: `${cat?.tagline ?? "Hot pot"} at ${r.name} in ${r.city}, ${r.state}${names ? `. Broths: ${names}` : ""}.`,
+    description: names ? `${lead}${names}.` : `${cat?.tagline ?? "Hot pot"} at ${r.name} in ${r.city}, ${r.state}.`,
     alternates: { canonical: "/hot-pot" },
   };
 }

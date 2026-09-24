@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { deleteReservation, updateReservationStatus } from "@/actions/reservations";
 import type { Reservation, ReservationStatus } from "@/db/schema";
 import { ConfirmDialog } from "@/components/admin/overlays";
@@ -16,6 +16,19 @@ export function ReservationDetail({ reservation: r, seatingPreferences, occasion
   const toast = useToast();
   const [busy, setBusy] = useState(false);
   const [confirm, setConfirm] = useState<ReservationStatus | "delete" | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [origin, setOrigin] = useState("");
+  useEffect(() => setOrigin(window.location.origin), []);
+  const manageUrl = `${origin}/book/${r.confirmationCode}?t=${r.manageToken}`;
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(manageUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Couldn't copy. Select the link and copy it manually.");
+    }
+  };
 
   const setStatus = async (status: ReservationStatus) => {
     setBusy(true);
@@ -64,6 +77,13 @@ export function ReservationDetail({ reservation: r, seatingPreferences, occasion
           </dl>
           <div className="mt-4 border-t border-zinc-100 pt-3">
             <Btn size="sm" variant="ghost" className="text-red-600" onClick={() => setConfirm("delete")}>Delete record</Btn>
+          </div>
+        </Card>
+        <Card title="Guest link" description="The private link the guest sees on their confirmation. Text or email it if they lost it.">
+          <p className="break-all rounded-lg bg-zinc-50 px-3 py-2 font-mono text-[12px] text-zinc-700" data-testid="manage-link">{manageUrl}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Btn size="sm" onClick={copyLink}>{copied ? "Copied" : "Copy link"}</Btn>
+            <a href={manageUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-8 items-center rounded-lg px-3 text-[13px] font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900">Open ↗</a>
           </div>
         </Card>
       </div>

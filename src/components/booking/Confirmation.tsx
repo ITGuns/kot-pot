@@ -108,6 +108,11 @@ export function Confirmation({
           <ButtonLink href={`/book/${r.confirmationCode}?t=${r.manageToken}`} variant="outline" size="sm" className="text-ink-900">View Reservation</ButtonLink>
         </div>
       )}
+      {!cancelled && (
+        <p className="mt-6 rounded-2xl border border-ink-900/10 bg-ivory-100 px-4 py-3 text-[13px] text-ink-700">
+          Save this page or bookmark <span className="font-semibold text-ink-900">View Reservation</span>: it&apos;s your private link to check or cancel the booking.
+        </p>
+      )}
       <p className="mt-6 text-[13px] text-ink-500">
         Need to change something? Call us at <a href={`tel:+1${restaurant.phone.replace(/\D/g, "")}`} className="font-semibold text-ink-900">{restaurant.phone}</a>.
       </p>

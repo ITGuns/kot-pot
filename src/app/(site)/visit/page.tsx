@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Visit } from "@/components/home/Visit";
 import { CtaBand } from "@/components/restaurant/CtaBand";
+import { getMedia, pickPhoto } from "@/lib/data/media";
 import { getRestaurant } from "@/lib/data/restaurant";
+import { toMediaLite } from "@/lib/menu-types";
 import { pageMeta } from "@/lib/seo";
 import { fullAddress, getSiteChrome } from "@/lib/site";
 
@@ -11,7 +13,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function VisitPage() {
-  const { restaurant, hours, phoneHref, clock, status } = await getSiteChrome();
+  const [{ restaurant, hours, phoneHref, clock, status }, media] = await Promise.all([getSiteChrome(), getMedia()]);
+  const storefront = pickPhoto(media, "exterior");
   return (
     <>
       <section className="grain relative overflow-hidden bg-ink-950 pb-4 pt-32 text-ivory-50 md:pt-40">
@@ -23,7 +26,7 @@ export default async function VisitPage() {
           </h1>
         </div>
       </section>
-      <Visit restaurant={restaurant} hours={hours} phoneHref={phoneHref} todayDow={clock.dayOfWeek} status={status} tone="dark" compact={false} />
+      <Visit restaurant={restaurant} hours={hours} phoneHref={phoneHref} todayDow={clock.dayOfWeek} status={status} tone="dark" compact={false} storefront={storefront ? toMediaLite(storefront) : null} storefrontPriority />
       <CtaBand phone={restaurant.phone} phoneHref={phoneHref} />
     </>
   );

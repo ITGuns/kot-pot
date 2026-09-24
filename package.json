@@ -14,6 +14,7 @@
     "db:seed": "tsx src/db/seed.ts",
     "db:reseed": "tsx src/db/seed.ts --force",
     "db:reset": "tsx src/db/seed.ts --force --reservations",
+    "db:sync-media": "tsx src/db/sync-media.ts",
     "assets:fetch": "node scripts/fetch-assets.mjs",
     "setup": "npm run assets:fetch && npm run db:push && npm run db:seed",
     "test": "vitest run",

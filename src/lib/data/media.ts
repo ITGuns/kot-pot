@@ -18,10 +18,27 @@ export async function readMediaById(id: number): Promise<Media | undefined> {
   return row;
 }
 
+/**
+ * Part of the media cache key. `npm run db:sync-media` writes to the database
+ * directly, which cannot revalidate the cache, so change this in the commit that
+ * adds bundled photos and the deploy reads the new rows.
+ */
+const MEDIA_CACHE_VERSION = "google-photos-2026-09-25";
+
 /** Active media, cached for the public site. */
-export const getMedia = cache(unstable_cache(() => readMedia(false), ["media"], { tags: [CONTENT_TAG] }));
+export const getMedia = cache(unstable_cache(() => readMedia(false), ["media", MEDIA_CACHE_VERSION], { tags: [CONTENT_TAG] }));
 
 export const getGallery = cache(async (): Promise<Media[]> => (await getMedia()).filter((m) => m.inGallery));
+
+/**
+ * The photo to use for a tag's section imagery: the first one marked featured
+ * (Admin → Media → "Prefer this photo for section imagery"), else the first by
+ * display order. `skip` excludes files already used nearby.
+ */
+export function pickPhoto<T extends Pick<Media, "tag" | "file" | "featured">>(list: T[], tag: string, skip: string[] = []): T | undefined {
+  const candidates = list.filter((m) => m.tag === tag && !skip.includes(m.file));
+  return candidates.find((m) => m.featured) ?? candidates[0];
+}
 
 /** object-position for a media row's focal point */
 export function focal(m: Pick<Media, "focalX" | "focalY">): string {

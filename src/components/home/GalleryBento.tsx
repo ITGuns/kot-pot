@@ -4,7 +4,10 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import type { MediaLite } from "@/lib/menu-types";
 import { cn } from "@/lib/cn";
 
-const SPANS = ["md:col-span-2 md:row-span-2", "md:col-span-1", "md:col-span-1", "md:col-span-2", "md:col-span-1", "md:col-span-1"];
+const SPANS = ["md:col-span-2 md:row-span-2", "md:col-span-1", "md:col-span-1", "md:col-span-2", "md:col-span-1", "md:col-span-1", "md:col-span-2"];
+
+/** 4 tiles fill two rows of the 4-column grid and 7 fill three, so never leave a half-empty row. */
+const tileCount = (n: number) => (n >= 7 ? 7 : Math.min(n, 4));
 
 export function GalleryBento({ images }: { images: MediaLite[] }) {
   if (!images.length) return null;
@@ -26,8 +29,8 @@ export function GalleryBento({ images }: { images: MediaLite[] }) {
           </Reveal>
         </div>
         <RevealGroup as="ul" className="mt-10 grid auto-rows-[220px] grid-cols-2 gap-3 md:auto-rows-[260px] md:grid-cols-4 md:gap-4" stagger={0.08}>
-          {images.slice(0, 6).map((img, i) => (
-            <RevealItem as="li" key={img.id} className={cn("col-span-2 md:col-span-1", i === 0 && "row-span-2", SPANS[i])}>
+          {images.slice(0, tileCount(images.length)).map((img, i) => (
+            <RevealItem as="li" key={img.id} className={cn("col-span-2 md:col-span-1", i === 0 && "row-span-2", i >= 4 && "hidden md:block", SPANS[i])}>
               <Link href={`/gallery?photo=${img.id}`} className="group relative block h-full w-full overflow-hidden rounded-[22px] bg-ink-800">
                 <Image
                   src={img.file}

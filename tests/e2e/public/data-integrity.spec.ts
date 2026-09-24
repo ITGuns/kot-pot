@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { GOOGLE_PHOTOS } from "../../../src/db/seed-data/google-photos";
 import { closePool, query } from "../helpers/db";
 
 /**
@@ -77,8 +78,27 @@ test.describe("Data integrity vs. kot-pot-i-mcallen.md", () => {
       expect(h.is_closed).toBe(false);
       expect([h.opens_at, h.closes_at]).toEqual(SOURCE.hours[h.day_of_week as 0]);
     }
-    const media = await query<{ alt: string }>(`select alt from media where file like '/images/%' order by display_order`);
+    const media = await query<{ alt: string }>(`select alt from media where file like '/images/%' and file not like '/images/google/%' order by display_order`);
     expect(media.map((m) => m.alt)).toEqual(SOURCE.images);
+  });
+
+  test("Google Maps photos are all present, credited to their photographer and served", async ({ request }) => {
+    const rows = await query<{ file: string; alt: string; caption: string | null; source_url: string | null }>(
+      `select file, alt, caption, source_url from media where file like '/images/google/%' order by display_order`,
+    );
+    expect(rows.map((r) => r.file).sort()).toEqual(GOOGLE_PHOTOS.map((p) => `/images/${p.file}`).sort());
+    for (const r of rows) {
+      expect(r.caption, r.file).toMatch(/\. Photo: .+ via Google Maps$/);
+      expect(r.source_url, r.file).toMatch(/^https:\/\/lh3\.googleusercontent\.com\/gps-cs-s\//);
+      expect(r.alt.length, r.file).toBeGreaterThan(10);
+    }
+    const storefront = await query<{ file: string }>(`select file from media where tag = 'exterior' and featured and active`);
+    expect(storefront.map((r) => r.file)).toContain("/images/google/storefront-sign.jpg");
+    for (const r of rows) {
+      const res = await request.get(r.file);
+      expect(res.status(), r.file).toBe(200);
+      expect(res.headers()["content-type"]).toBe("image/jpeg");
+    }
   });
 
   test("all-you-can-eat pricing matches the source exactly", async () => {

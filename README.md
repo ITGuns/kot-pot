@@ -27,7 +27,7 @@ npm run db:seed                   # imports the full menu, pricing, hours, photo
 npm run dev                       # http://localhost:3000  ·  admin at /admin
 ```
 
-`npm run db:local start|stop|status|psql` manages the local cluster (data lives in `data/pg`, git-ignored). `npm run db:reseed` wipes and re-seeds content tables without deleting reservations; `npm run db:reset` also clears reservations and date overrides. `npm run assets:fetch` re-downloads the source photos into `public/images` if they are missing.
+`npm run db:local start|stop|status|psql` manages the local cluster (data lives in `data/pg`, git-ignored). `npm run db:reseed` wipes and re-seeds content tables without deleting reservations; `npm run db:reset` also clears reservations and date overrides. `npm run assets:fetch` re-downloads the source photos into `public/images` if they are missing. `npm run db:sync-media` adds bundled photos the database doesn't have yet, such as the 30 Google Maps photos in `public/images/google`, without touching other content. Add `-- --reorder` to reset their gallery order.
 
 ## Deployment
 

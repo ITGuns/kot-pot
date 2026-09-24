@@ -49,6 +49,7 @@ export const MEDIA_TAG_LABELS: Record<MediaTag, string> = {
   banchan: "Banchan",
   drinks: "Drinks",
   interior: "The room",
+  exterior: "Outside",
   other: "Other",
 };
 

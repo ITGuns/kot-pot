@@ -3,7 +3,8 @@
  * Nothing here is invented; anything the source does not state is null / empty
  * and can be filled in from the admin dashboard.
  */
-import type { HoursCategory, MediaTag } from "../schema";
+import type { HoursCategory } from "../schema";
+import { GOOGLE_PHOTOS, type SeedPhoto } from "./google-photos";
 import { $, FRI, MON, SAT, SUN, THU, TUE, WED } from "./types";
 
 export const RESTAURANT = {
@@ -97,9 +98,30 @@ export const BOOKING_WINDOWS = [
 const SITE = "https://hotpot-feast-forge.lovable.app/assets";
 
 /** The four photos on the previous site, with their original alt text. */
-export const MEDIA: { file: string; alt: string; tag: MediaTag; width: number; height: number; featured?: boolean; focalX?: number; focalY?: number; sourceUrl: string }[] = [
+export const MEDIA: SeedPhoto[] = [
   { file: "hero-bbq.jpg", alt: "Sizzling Korean BBQ marbled beef on charcoal grill", tag: "bbq", width: 1920, height: 1080, featured: true, focalY: 55, sourceUrl: `${SITE}/hero-bbq-Bkkbd3rK.jpg` },
   { file: "meat-platter.jpg", alt: "Premium marbled beef platter", tag: "bbq", width: 1024, height: 1024, featured: true, sourceUrl: `${SITE}/meat-platter-C_qJs0Sr.jpg` },
   { file: "hotpot.jpg", alt: "Bubbling spicy Korean hot pot", tag: "hot-pot", width: 1024, height: 1024, featured: true, sourceUrl: `${SITE}/hotpot-CbWViJiH.jpg` },
   { file: "banchan.jpg", alt: "Korean banchan side dishes", tag: "banchan", width: 1024, height: 1024, featured: true, sourceUrl: `${SITE}/banchan-DXZFqz6J.jpg` },
 ];
+
+/**
+ * Every bundled photo in display order: the restaurant's Google Maps photos
+ * lead the gallery, the previous site's four photos follow. Section imagery
+ * (hero, intro collage, category banners) prefers photos marked featured.
+ */
+export const ALL_MEDIA: SeedPhoto[] = [...GOOGLE_PHOTOS, ...MEDIA];
+
+/** `media` table rows for ALL_MEDIA, shared by the seed and `npm run db:sync-media`. */
+export function mediaSeedRows() {
+  return ALL_MEDIA.map((m, i) => ({
+    ...m,
+    file: `/images/${m.file}`,
+    caption: m.caption ?? null,
+    featured: m.featured ?? false,
+    focalX: m.focalX ?? 50,
+    focalY: m.focalY ?? 50,
+    displayOrder: i,
+  }));
+}
+

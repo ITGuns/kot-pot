@@ -69,6 +69,22 @@ test.describe("Other public pages & routes", () => {
     expect(hiddenFocusable).toBe(0);
   });
 
+  test("visit page shows the credited storefront photo above the map", async ({ page }) => {
+    await page.goto("/visit");
+    const figure = page.locator("#visit figure");
+    await expect(figure.getByRole("img", { name: /storefront at dusk/ })).toBeVisible();
+    await expect(figure.locator("figcaption")).toHaveText("The storefront at dusk. Photo: Kot Pot 1 via Google Maps");
+    await expect(page.locator("#visit iframe")).toBeAttached();
+  });
+
+  test("gallery offers an Outside filter for the storefront photos", async ({ page }) => {
+    await page.goto("/gallery");
+    await page.getByRole("tab", { name: "Outside" }).click();
+    const tiles = page.locator("ul.columns-2 > li");
+    await expect(tiles.filter({ hasNotText: "via Google Maps" })).toHaveCount(0);
+    await expect.poll(() => tiles.count()).toBeGreaterThanOrEqual(4);
+  });
+
   test("gallery deep link opens the lightbox", async ({ page }) => {
     await page.goto("/gallery?photo=1");
     await expect(page.getByRole("dialog")).toBeVisible();

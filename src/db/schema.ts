@@ -21,7 +21,7 @@ export type HoursCategory = (typeof HOURS_CATEGORIES)[number];
 export const SECTION_TYPES = ["items", "addons"] as const;
 export type SectionType = (typeof SECTION_TYPES)[number];
 
-export const MEDIA_TAGS = ["bbq", "hot-pot", "banchan", "drinks", "interior", "other"] as const;
+export const MEDIA_TAGS = ["bbq", "hot-pot", "banchan", "drinks", "interior", "exterior", "other"] as const;
 export type MediaTag = (typeof MEDIA_TAGS)[number];
 
 const timestamps = {

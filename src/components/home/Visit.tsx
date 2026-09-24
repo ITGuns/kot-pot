@@ -1,7 +1,9 @@
+import Image from "next/image";
 import type { Hours, RestaurantInfo } from "@/db/schema";
 import { HoursTable } from "@/components/site/HoursTable";
 import { Reveal } from "@/components/ui/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
+import type { MediaLite } from "@/lib/menu-types";
 import { fullAddress, mapsEmbedUrl, mapsUrl } from "@/lib/site";
 import { cn } from "@/lib/cn";
 
@@ -13,6 +15,8 @@ export function Visit({
   status,
   compact = false,
   tone = "light",
+  storefront = null,
+  storefrontPriority = false,
 }: {
   restaurant: RestaurantInfo;
   hours: Hours[];
@@ -21,6 +25,10 @@ export function Visit({
   status?: { isOpen: boolean; label: string; detail: string };
   compact?: boolean;
   tone?: "light" | "dark";
+  /** Photo of the building shown above the map so guests know what to look for. */
+  storefront?: MediaLite | null;
+  /** Load the storefront photo eagerly when the section is in the first screen (the /visit page). */
+  storefrontPriority?: boolean;
 }) {
   const light = tone === "light";
   return (
@@ -86,8 +94,32 @@ export function Visit({
             </Reveal>
           )}
         </div>
-        <Reveal delay={0.1} className="lg:col-span-7" amount={0.2}>
-          <div className={cn("relative h-[360px] overflow-hidden rounded-[28px] shadow-card sm:h-[460px] lg:h-full lg:min-h-[560px]", light ? "bg-ivory-200" : "bg-ink-800")}>
+        <Reveal delay={0.1} className="flex flex-col gap-4 lg:col-span-7" amount={0.2}>
+          {storefront && (
+            <figure className={cn("relative aspect-[16/10] overflow-hidden rounded-[28px] shadow-card", light ? "bg-ivory-200" : "bg-ink-800")}>
+              <Image
+                src={storefront.file}
+                alt={storefront.alt}
+                fill
+                sizes="(min-width: 1024px) 55vw, 100vw"
+                priority={storefrontPriority}
+                className="object-cover"
+                style={{ objectPosition: `${storefront.focalX}% ${storefront.focalY}%` }}
+              />
+              {storefront.caption && (
+                <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink-950/80 to-transparent px-5 pb-4 pt-12 text-[12px] leading-snug text-ivory-50">
+                  {storefront.caption}
+                </figcaption>
+              )}
+            </figure>
+          )}
+          <div
+            className={cn(
+              "relative overflow-hidden rounded-[28px] shadow-card",
+              storefront ? "h-[320px] sm:h-[380px] lg:h-auto lg:min-h-[340px] lg:flex-1" : "h-[360px] sm:h-[460px] lg:h-full lg:min-h-[560px]",
+              light ? "bg-ivory-200" : "bg-ink-800",
+            )}
+          >
             <iframe
               title={`Map showing ${r.name} at ${fullAddress(r)}`}
               src={mapsEmbedUrl(r)}

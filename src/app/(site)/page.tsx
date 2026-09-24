@@ -12,7 +12,7 @@ import { SauceBuilder } from "@/components/restaurant/SauceBuilder";
 import { itemAvailability } from "@/lib/availability";
 import { currentAyce, groupAyce, todaysAyceGroup } from "@/lib/ayce";
 import { flattenItems, getMenuTree } from "@/lib/data/menu";
-import { getMedia } from "@/lib/data/media";
+import { getMedia, pickPhoto } from "@/lib/data/media";
 import { getAyce, getRestaurant } from "@/lib/data/restaurant";
 import { mediaForFile, toLite, toMediaLite } from "@/lib/menu-types";
 import { pageMeta } from "@/lib/seo";
@@ -48,11 +48,13 @@ export default async function HomePage() {
     });
 
   const heroImage = mediaForFile(media, restaurant.heroImage, restaurant.heroImageAlt ?? restaurant.name);
-  const byTag = (tag: string, skip: string[] = []) => media.find((m) => m.tag === tag && !skip.includes(m.file));
+  const byTag = (tag: string, skip: string[] = []) => pickPhoto(media, tag, skip);
   const introMain = byTag("bbq", [restaurant.heroImage ?? ""]) ?? byTag("bbq");
   const introLeft = byTag("banchan") ?? byTag("hot-pot");
   const introRight = byTag("hot-pot", [introLeft?.file ?? ""]) ?? byTag("interior");
   const gallery = media.filter((m) => m.inGallery).map(toMediaLite);
+  const storefrontPhoto = pickPhoto(media, "exterior");
+  const storefront = storefrontPhoto ? toMediaLite(storefrontPhoto) : null;
 
   const groups = groupAyce(ayce);
   const todayGroup = todaysAyceGroup(ayce, clock, todayIsHoliday);
@@ -87,7 +89,7 @@ export default async function HomePage() {
       <SauceBuilder sauces={sauces} tagline={category("sauce-bar")?.tagline ?? null} />
       <Drinks cocktails={cocktails} beerSake={beerSake} cocktailsTagline={category("cocktails")?.tagline ?? null} beerTagline={category("beer-sake")?.tagline ?? null} />
       <GalleryBento images={gallery} />
-      <Visit restaurant={restaurant} hours={hours} phoneHref={phoneHref} todayDow={clock.dayOfWeek} status={status} />
+      <Visit restaurant={restaurant} hours={hours} phoneHref={phoneHref} todayDow={clock.dayOfWeek} status={status} storefront={storefront} />
     </>
   );
 }

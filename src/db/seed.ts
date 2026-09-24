@@ -3,7 +3,7 @@ import { config as loadEnv } from "dotenv";
 import { sql } from "drizzle-orm";
 import { MENU } from "./seed-data/menu";
 import { MODIFIER_GROUPS } from "./seed-data/modifiers";
-import { AYCE, BOOKING_SETTINGS, BOOKING_WINDOWS, HOURS, MEDIA, RESTAURANT } from "./seed-data/restaurant";
+import { ALL_MEDIA, AYCE, BOOKING_SETTINGS, BOOKING_WINDOWS, HOURS, RESTAURANT, mediaSeedRows } from "./seed-data/restaurant";
 import { hashPassword } from "../lib/password";
 import { slugify } from "../lib/slug";
 
@@ -125,10 +125,10 @@ async function main() {
     }
 
     /* ---- media ---- */
-    await tx.insert(media).values(MEDIA.map((m, i) => ({ ...m, file: `/images/${m.file}`, featured: m.featured ?? false, focalX: m.focalX ?? 50, focalY: m.focalY ?? 50, displayOrder: i })));
+    await tx.insert(media).values(mediaSeedRows());
 
     console.log(
-      `Seeded: ${MENU.length} categories, ${MENU.reduce((n, c) => n + c.sections.length, 0)} sections, ${items} items, ${MODIFIER_GROUPS.length} modifier groups, ${AYCE.length} all-you-can-eat rows, ${HOURS.length} hours rows, ${MEDIA.length} media items.`,
+      `Seeded: ${MENU.length} categories, ${MENU.reduce((n, c) => n + c.sections.length, 0)} sections, ${items} items, ${MODIFIER_GROUPS.length} modifier groups, ${AYCE.length} all-you-can-eat rows, ${HOURS.length} hours rows, ${ALL_MEDIA.length} media items.`,
     );
   });
 

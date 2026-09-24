@@ -9,7 +9,7 @@ import { ConfirmDialog, Drawer } from "@/components/admin/overlays";
 import { useToast } from "@/components/admin/toast";
 import { Btn, Card, DaysPicker, EmptyState, Field, Input, Tag, Toggle, centsToInput } from "@/components/admin/ui";
 import { sessionHoursLabel } from "@/lib/ayce";
-import { daysLabel, money, time12 } from "@/lib/format";
+import { daysLabelWeek, money, time12 } from "@/lib/format";
 import { cn } from "@/lib/cn";
 
 export function AyceManager({ rows }: { rows: AycePricing[] }) {
@@ -74,7 +74,7 @@ function Row({ r, onEdit, onDelete, onDragEnd }: { r: AycePricing; onEdit: () =>
           {r.includesHolidays && <Tag tone="amber">+ holidays</Tag>}
           {!r.active && <Tag tone="gray">Hidden</Tag>}
         </p>
-        <p className="text-[12px] text-zinc-500">{daysLabel(r.days) || "No days"} · {sessionHoursLabel(r, time12)}{r.note ? ` · ${r.note}` : ""}</p>
+        <p className="text-[12px] text-zinc-500">{daysLabelWeek(r.days) || "No days"} · {sessionHoursLabel(r, time12)}{r.note ? ` · ${r.note}` : ""}</p>
       </div>
       <span className="text-right text-[14px] tabular-nums text-zinc-900">
         <span className="font-semibold">{money(r.adultPrice, { always: true })}</span> adult

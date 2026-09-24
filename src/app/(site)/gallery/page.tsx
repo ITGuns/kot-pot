@@ -4,10 +4,11 @@ import { PageHero } from "@/components/restaurant/PageHero";
 import { getGallery } from "@/lib/data/media";
 import { getRestaurant } from "@/lib/data/restaurant";
 import { toMediaLite } from "@/lib/menu-types";
+import { pageMeta } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const r = await getRestaurant();
-  return { title: "Gallery", description: `Photos from ${r.name}: ${r.tagline}. ${r.city}, ${r.state}.`, alternates: { canonical: "/gallery" } };
+  return pageMeta(r, { title: "Gallery", description: `Photos from ${r.name}: ${r.tagline}. ${r.city}, ${r.state}.`, path: "/gallery" });
 }
 
 export default async function GalleryPage({ searchParams }: { searchParams: Promise<{ photo?: string }> }) {

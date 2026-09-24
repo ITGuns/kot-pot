@@ -67,7 +67,7 @@ export function FeaturedCarousel({ items }: { items: MenuItemLite[] }) {
       <div aria-hidden className="pointer-events-none absolute left-1/2 top-0 h-px w-[80%] -translate-x-1/2 bg-gradient-to-r from-transparent via-chili-400/40 to-transparent" />
       <div className="container-site flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <Reveal>
-          <p className="eyebrow text-chili-300">Signature dishes</p>
+          <p className="eyebrow text-chili-300">Featured dishes</p>
           <h2 id="featured-title" className="mt-4 font-display text-[clamp(2.6rem,5.5vw,4.8rem)] leading-[0.98]">
             The table <em className="italic text-chili-300">is</em> the kitchen.
           </h2>
@@ -79,7 +79,7 @@ export function FeaturedCarousel({ items }: { items: MenuItemLite[] }) {
         </Reveal>
       </div>
       <Reveal className="mt-10" amount={0.1}>
-        <DragCarousel ariaLabel="Signature dishes" trackClassName="px-5 sm:px-8 lg:px-12">
+        <DragCarousel ariaLabel="Featured dishes" trackClassName="px-5 sm:px-8 lg:px-12">
           {items.map((item, i) => (
             <li key={item.id} className="shrink-0 snap-start" aria-roledescription="slide" aria-label={`${i + 1} of ${items.length}`}>
               <FeaturedCard item={item} index={i} />

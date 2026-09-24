@@ -216,6 +216,15 @@ export function summarizeHours(rows: Hours[], category: HoursCategory): { days: 
       groups.push({ days: [d], key, hours: hoursText, note: row?.note ?? undefined });
     }
   }
+  // The week is grouped Mon→Sun; fold a matching Sunday into the leading Monday group ("Sun – Thu").
+  if (groups.length > 1) {
+    const first = groups[0];
+    const last = groups[groups.length - 1];
+    if (last.days.length === 1 && last.days[0] === 0 && first.days[0] === 1 && last.key === first.key) {
+      first.days = [0, ...first.days];
+      groups.pop();
+    }
+  }
   return groups
     .filter((g) => !(g.key === "closed" && category !== "store"))
     .map((g) => ({ days: daysLabelOrdered(g.days), hours: g.hours, note: g.note }));

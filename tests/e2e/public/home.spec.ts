@@ -21,7 +21,7 @@ test.describe("Homepage", () => {
     await expect(page.locator("main")).toContainText("4.5");
     await expect(page.locator("main")).toContainText("411 reviews");
     await expect(page.locator("main")).toContainText("$30–40 per person");
-    await expect(page.locator("footer")).toContainText("Mon – Thu");
+    await expect(page.locator("footer")).toContainText("Sun – Thu");
     await expect(page.locator("footer")).toContainText("11 AM – 11 PM");
     await expect(page.locator("footer")).toContainText("Dine-in");
     await expect(page.locator('iframe[title^="Map showing"]')).toBeVisible();

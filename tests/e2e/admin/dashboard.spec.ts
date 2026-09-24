@@ -1,5 +1,8 @@
 import { expect, test } from "@playwright/test";
+import { config } from "dotenv";
 import { gotoReady } from "../helpers/ui";
+
+config({ path: ".env.local" });
 
 test.describe("Admin dashboard & shell", () => {
   test("dashboard shows today's stats, hours, pricing and quick actions", async ({ page }) => {
@@ -30,11 +33,24 @@ test.describe("Admin dashboard & shell", () => {
     expect(await toggle.getAttribute("aria-checked")).toBe("true");
   });
 
-  test("sign out ends the session", async ({ page }) => {
+  test("sign out ends the session and revokes the old token", async ({ page }) => {
+    const { cookies } = await page.context().storageState();
+    const oldToken = cookies.find((c) => c.name === "sm_admin")?.value;
+    expect(oldToken).toBeTruthy();
     await page.goto("/admin");
     await page.getByRole("button", { name: "Sign out" }).click();
     await expect(page).toHaveURL(/\/admin\/login/);
     const res = await page.request.get("/admin", { maxRedirects: 0 });
     expect(res.status()).toBe(307);
+    // A copy of the previous token must be rejected too (server-side revocation)
+    const replay = await page.request.get("/admin", { maxRedirects: 0, headers: { cookie: `sm_admin=${oldToken}` } });
+    expect(replay.status()).toBe(307);
+
+    // Sign back in so the remaining admin specs keep a valid session
+    await page.getByLabel("Email").fill(process.env.ADMIN_EMAIL ?? "owner@kotpot.local");
+    await page.getByLabel("Password").fill(process.env.ADMIN_PASSWORD ?? "kotpot-admin-2026");
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page).toHaveURL(/\/admin$/);
+    await page.context().storageState({ path: "tests/.auth/admin.json" });
   });
 });

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import type { AycePricing as Row } from "@/db/schema";
 import type { AyceGroup } from "@/lib/ayce";
 import { sessionHoursLabel } from "@/lib/ayce";
-import { daysLabel, money, time12 } from "@/lib/format";
+import { daysLabelWeek, money, time12 } from "@/lib/format";
 import { cn } from "@/lib/cn";
 import { Reveal } from "@/components/ui/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
@@ -90,7 +90,7 @@ export function AycePricing({
               })}
             </div>
             <p className={cn("mt-3 text-[13px]", light ? "text-ink-500" : "text-ivory-100/70")}>
-              {daysLabel(group.days)}
+              {daysLabelWeek(group.days)}
               {group.includesHolidays ? " & holidays" : ""}
               {group.key === todayKey ? " · today" : ""}
             </p>
@@ -143,7 +143,8 @@ export function AycePricing({
                 className="relative z-[2] mt-8"
               >
                 <p className={cn("font-label text-[15px] tracking-[0.2em]", light ? "text-chili-300" : "text-chili-600")}>
-                  {session.session} · {sessionHoursLabel(session, time12)}
+                  {session.session}
+                  {sessionHoursLabel(session, time12) !== "All day" && ` · ${sessionHoursLabel(session, time12)}`}
                   {session.id === currentId && <span className="ml-2 rounded-full bg-chili-600 px-2 py-0.5 text-[11px] font-semibold text-ivory-50">Right now</span>}
                 </p>
                 <div className="mt-6 grid gap-8 sm:grid-cols-2 sm:gap-6">
@@ -170,7 +171,8 @@ export function AycePricing({
                 <div key={s.id} className="flex items-baseline justify-between gap-3 sm:flex-col sm:gap-0.5">
                   <span className="font-semibold">{s.session}</span>
                   <span className="tabular-nums">
-                    {sessionHoursLabel(s, time12)} · {money(s.adultPrice, { always: true })}
+                    {sessionHoursLabel(s, time12) !== "All day" && `${sessionHoursLabel(s, time12)} · `}
+                    {money(s.adultPrice, { always: true })}
                   </span>
                 </div>
               ))}

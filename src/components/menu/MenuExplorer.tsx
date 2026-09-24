@@ -189,7 +189,7 @@ export function MenuExplorer({
                   Available now
                 </FilterChip>
                 <FilterChip active={filters.featured} onClick={() => setFilters((f) => ({ ...f, featured: !f.featured }))}>
-                  Signature
+                  Featured
                 </FilterChip>
                 {hasActiveFilters(filters) && (
                   <button type="button" onClick={() => setFilters(EMPTY_FILTERS)} className="ml-auto text-[13px] font-semibold text-chili-600 hover:underline">
@@ -255,7 +255,7 @@ export function MenuExplorer({
                 <div className="space-y-12">
                   {cat.sections.map((sec) => {
                     const isCollapsed = collapsed.has(sec.id);
-                    const soloSection = cat.sections.length === 1 && (sec.name === cat.name || sec.description === cat.tagline);
+                    const soloSection = cat.sections.length === 1 && sec.name === cat.name;
                     return (
                       <section key={sec.id} aria-labelledby={soloSection ? `cat-${cat.id}` : `sec-${sec.id}`}>
                         {!soloSection && (
@@ -264,7 +264,7 @@ export function MenuExplorer({
                               <h3 id={`sec-${sec.id}`} className="font-display text-2xl text-ink-900">
                                 {sec.name}
                               </h3>
-                              {sec.description && sec.sectionType === "items" && <p className="mt-1 text-[14px] text-ink-500">{sec.description}</p>}
+                              {sec.description && sec.sectionType === "items" && sec.description !== cat.tagline && <p className="mt-1 text-[14px] text-ink-500">{sec.description}</p>}
                             </div>
                             <button
                               type="button"

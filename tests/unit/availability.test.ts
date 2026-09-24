@@ -60,6 +60,6 @@ describe("categoryOpenNow", () => {
 describe("summarizeHours", () => {
   it("groups consecutive days with identical hours", () => {
     const rows = summarizeHours(storeHours, "store");
-    expect(rows.map((r) => `${r.days} ${r.hours}`)).toEqual(["Mon – Thu 11 AM – 10 PM", "Fri – Sat 11 AM – 11 PM", "Sun 11 AM – 10 PM"]);
+    expect(rows.map((r) => `${r.days} ${r.hours}`)).toEqual(["Sun – Thu 11 AM – 10 PM", "Fri – Sat 11 AM – 11 PM"]);
   });
 });

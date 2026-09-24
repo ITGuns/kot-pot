@@ -378,6 +378,8 @@ export const adminUsers = pgTable(
     /** scrypt: salt:hash (hex) */
     passwordHash: text("password_hash").notNull(),
     role: text("role").notNull().default("admin"),
+    /** Bumped on sign-out / password change so previously issued session tokens stop working. */
+    tokenVersion: integer("token_version").notNull().default(0),
     lastLoginAt: text("last_login_at"),
     ...timestamps,
   },

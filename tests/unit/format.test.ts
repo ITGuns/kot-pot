@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDays, dayOfWeek, daysLabel, formatRelative, fromMinutes, money, phoneHref, priceAdjustment, time12, toMinutes } from "@/lib/format";
+import { addDays, dayOfWeek, daysLabel, daysLabelWeek, formatRelative, fromMinutes, joinWithin, money, phoneHref, priceAdjustment, time12, toMinutes } from "@/lib/format";
 
 describe("money", () => {
   it("formats cents, dropping .00 unless forced", () => {
@@ -46,6 +46,17 @@ describe("date helpers", () => {
     expect(daysLabel([2, 4])).toBe("Tue, Thu");
     expect(daysLabel([0, 1, 2, 3, 4, 5, 6])).toBe("Daily");
     expect(daysLabel([])).toBe("");
+  });
+  it("labels day sets Monday-first for pricing groups", () => {
+    expect(daysLabelWeek([1, 2, 3, 4, 5])).toBe("Mon–Fri");
+    expect(daysLabelWeek([6, 0])).toBe("Sat & Sun");
+    expect(daysLabelWeek([0, 6])).toBe("Sat & Sun");
+    expect(daysLabelWeek([5, 6, 0])).toBe("Fri–Sun");
+    expect(daysLabelWeek([0, 1, 2, 3, 4, 5, 6])).toBe("Daily");
+  });
+  it("joins names within a character budget", () => {
+    expect(joinWithin(["Brisket", "Bulgogi", "Pork Belly"], 18)).toBe("Brisket, Bulgogi");
+    expect(joinWithin(["Brisket"], 3)).toBe("");
   });
 });
 

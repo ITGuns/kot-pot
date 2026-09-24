@@ -117,7 +117,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <Card title="Featured menu items" description="Shown in the homepage signature carousel" className="mt-6" padded={false} actions={<Link href="/admin/menu?featured=1" className="text-[13px] font-medium text-zinc-600 hover:text-zinc-900">Manage →</Link>}>
+      <Card title="Featured menu items" description="Shown in the homepage featured carousel" className="mt-6" padded={false} actions={<Link href="/admin/menu?featured=1" className="text-[13px] font-medium text-zinc-600 hover:text-zinc-900">Manage →</Link>}>
         {featured.length === 0 ? (
           <div className="p-5"><EmptyState title="No featured items" body="Mark items as featured from the menu editor." /></div>
         ) : (

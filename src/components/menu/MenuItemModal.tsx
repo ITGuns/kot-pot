@@ -99,7 +99,7 @@ export function MenuItemModal({ item, availability, onClose }: { item: ItemNode 
                 <div className="flex flex-wrap gap-1.5">
                   <Pill tone="light" className="ring-ink-900/15">{item.categoryName}</Pill>
                   {item.sectionName !== item.categoryName && <Pill tone="light" className="ring-ink-900/15">{item.sectionName}</Pill>}
-                  {item.featured && <Pill tone="chili" className="bg-chili-500/12 text-chili-600 ring-chili-500/30">Signature</Pill>}
+                  {item.featured && <Pill tone="chili" className="bg-chili-500/12 text-chili-600 ring-chili-500/30">Featured</Pill>}
                   {availability?.label && <Pill className={availability.availableToday ? "bg-bronze-400/25 text-wood-700 ring-bronze-500/40" : "bg-garnet-700/10 text-garnet-700 ring-garnet-600/30"}>{availability.label}</Pill>}
                   {availability?.availableNow && <Pill className="bg-jade-500/15 text-jade-700 ring-jade-500/30">Available now</Pill>}
                 </div>

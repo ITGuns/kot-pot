@@ -16,6 +16,7 @@ test.describe("Menu", () => {
 
     await cats.filter({ hasText: "Hot Pot" }).click();
     await expect(page.getByRole("heading", { name: "Hot Pot.", level: 2 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Hot Pot Broths", level: 3 })).toBeVisible();
     await expect(page.getByText("Two Broths per Pot").first()).toBeVisible();
     await expect(row(page, "Pork Bone (Tonkotsu)")).toContainText("18-hour rich, milky broth");
     await expect(row(page, "Pork Bone (Tonkotsu)")).toContainText("$8");
@@ -65,7 +66,7 @@ test.describe("Menu", () => {
 
     await search.fill("");
     await page.getByRole("button", { name: /^Filters/ }).click();
-    await page.getByRole("button", { name: "Signature", exact: true }).click();
+    await page.getByRole("button", { name: "Featured", exact: true }).click();
     await expect(row(page, "Marinated Beef Bulgogi")).toBeVisible();
     await expect(row(page, "Sliced Chicken")).toHaveCount(0);
     await page.getByRole("button", { name: "Clear all" }).click();

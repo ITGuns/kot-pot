@@ -12,6 +12,7 @@ import { getMedia } from "@/lib/data/media";
 import { getAyce, getRestaurant } from "@/lib/data/restaurant";
 import { joinWithin } from "@/lib/format";
 import { mediaForFile, toLite } from "@/lib/menu-types";
+import { pageMeta } from "@/lib/seo";
 import { getSiteChrome } from "@/lib/site";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -19,11 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const cat = tree.categories.find((c) => c.slug === "hot-pot");
   const lead = `${cat?.tagline ?? "Hot pot"} at ${r.name} in ${r.city}, ${r.state}. Broths: `;
   const names = joinWithin(cat?.sections.flatMap((s) => s.items.map((i) => i.name)) ?? [], 152 - lead.length);
-  return {
-    title: "Hot Pot",
-    description: names ? `${lead}${names}.` : `${cat?.tagline ?? "Hot pot"} at ${r.name} in ${r.city}, ${r.state}.`,
-    alternates: { canonical: "/hot-pot" },
-  };
+  return pageMeta(r, { title: "Hot Pot", description: names ? `${lead}${names}.` : `${cat?.tagline ?? "Hot pot"} at ${r.name} in ${r.city}, ${r.state}.`, path: "/hot-pot" });
 }
 
 export default async function HotPotPage() {
@@ -65,7 +62,7 @@ export default async function HotPotPage() {
 
       <AycePricing groups={groups} blurb={restaurant.ayceBlurb} todayKey={todaysAyceGroup(ayce, clock, todayIsHoliday)?.key ?? null} currentId={currentAyce(ayce, clock, todayIsHoliday)?.id ?? null} compact />
       <SauceBuilder sauces={sauces} tagline={sauce?.tagline ?? null} compact />
-      <CtaBand title="Get the pot bubbling." body="Reserve online in under a minute. Larger groups can call ahead." phone={restaurant.phone} phoneHref={phoneHref} />
+      <CtaBand title="Get the pot bubbling." body="Reserve online, or call us for larger groups." phone={restaurant.phone} phoneHref={phoneHref} />
     </>
   );
 }

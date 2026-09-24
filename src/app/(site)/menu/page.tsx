@@ -6,12 +6,13 @@ import { itemAvailability, type AvailabilityInfo } from "@/lib/availability";
 import { DAY_NAMES } from "@/lib/constants";
 import { getMenuTree } from "@/lib/data/menu";
 import { getRestaurant } from "@/lib/data/restaurant";
+import { pageMeta } from "@/lib/seo";
 import { getSiteChrome } from "@/lib/site";
 
 export async function generateMetadata(): Promise<Metadata> {
   const [r, tree] = await Promise.all([getRestaurant(), getMenuTree()]);
   const cats = tree.categories.map((c) => c.name).join(", ");
-  return { title: "Menu", description: `The ${r.name} menu: ${cats}. ${r.tagline} in ${r.city}, ${r.state}.`, alternates: { canonical: "/menu" } };
+  return pageMeta(r, { title: "Menu", description: `The ${r.name} menu: ${cats}. ${r.tagline} in ${r.city}, ${r.state}.`, path: "/menu" });
 }
 
 export default async function MenuPage({ searchParams }: { searchParams: Promise<{ category?: string; item?: string; q?: string }> }) {

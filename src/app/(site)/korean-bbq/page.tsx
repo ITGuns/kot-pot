@@ -12,6 +12,7 @@ import { getMedia } from "@/lib/data/media";
 import { getAyce, getRestaurant } from "@/lib/data/restaurant";
 import { joinWithin } from "@/lib/format";
 import { mediaForFile, toLite } from "@/lib/menu-types";
+import { pageMeta } from "@/lib/seo";
 import { getSiteChrome } from "@/lib/site";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -19,11 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const cat = tree.categories.find((c) => c.slug === "korean-bbq");
   const lead = `${cat?.tagline ?? "Grill at your table"} at ${r.name} in ${r.city}, ${r.state}`;
   const names = joinWithin(cat?.sections.flatMap((s) => s.items.map((i) => i.name)) ?? [], 150 - lead.length);
-  return {
-    title: "Korean BBQ",
-    description: `${lead}${names ? `: ${names} and more` : ""}.`,
-    alternates: { canonical: "/korean-bbq" },
-  };
+  return pageMeta(r, { title: "Korean BBQ", description: `${lead}${names ? `: ${names} and more` : ""}.`, path: "/korean-bbq" });
 }
 
 export default async function KoreanBbqPage() {
@@ -66,7 +63,7 @@ export default async function KoreanBbqPage() {
 
       <AycePricing groups={groups} blurb={restaurant.ayceBlurb} todayKey={todaysAyceGroup(ayce, clock, todayIsHoliday)?.key ?? null} currentId={currentAyce(ayce, clock, todayIsHoliday)?.id ?? null} compact />
       <SauceBuilder sauces={sauces} tagline={sauce?.tagline ?? null} compact />
-      <CtaBand title="Fire up a table." body="Reserve online in under a minute. Larger groups can call ahead." phone={restaurant.phone} phoneHref={phoneHref} />
+      <CtaBand title="Fire up a table." body="Reserve online, or call us for larger groups." phone={restaurant.phone} phoneHref={phoneHref} />
     </>
   );
 }

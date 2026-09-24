@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import { Visit } from "@/components/home/Visit";
 import { CtaBand } from "@/components/restaurant/CtaBand";
 import { getRestaurant } from "@/lib/data/restaurant";
+import { pageMeta } from "@/lib/seo";
 import { fullAddress, getSiteChrome } from "@/lib/site";
 
 export async function generateMetadata(): Promise<Metadata> {
   const r = await getRestaurant();
-  return { title: "Visit Us", description: `${r.name} is at ${fullAddress(r)}. Call ${r.phone}. ${r.serviceTypes.join(", ")}.`, alternates: { canonical: "/visit" } };
+  return pageMeta(r, { title: "Visit Us", description: `${r.name} is at ${fullAddress(r)}. Call ${r.phone}. ${r.serviceTypes.join(", ")}.`, path: "/visit" });
 }
 
 export default async function VisitPage() {

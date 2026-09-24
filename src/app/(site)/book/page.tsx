@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { BookingWizard } from "@/components/booking/BookingWizard";
 import { getBookableDates } from "@/lib/booking";
 import { getBookingSettings, getRestaurant } from "@/lib/data/restaurant";
+import { pageMeta } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const r = await getRestaurant();
-  return { title: "Book a Table", description: `Reserve a table at ${r.name}: ${r.tagline} in ${r.city}, ${r.state}.`, alternates: { canonical: "/book" } };
+  return pageMeta(r, { title: "Book a Table", description: `Reserve a table at ${r.name}: ${r.tagline} in ${r.city}, ${r.state}.`, path: "/book" });
 }
 
 export default async function BookPage() {

@@ -58,7 +58,7 @@ export function MenuItemRow({ item, availability, onOpen }: { item: ItemNode; av
         {!item.description && item.notes && <span className="mt-1 block text-[14px] leading-relaxed text-ink-500">{item.notes}</span>}
         {(badges || item.dietaryTags.length > 0) && (
           <span className="mt-2.5 flex flex-wrap items-center gap-1.5">
-            {item.featured && <Pill tone="chili" className="bg-chili-500/12 text-chili-600 ring-chili-500/30">Signature</Pill>}
+            {item.featured && <Pill tone="chili" className="bg-chili-500/12 text-chili-600 ring-chili-500/30">Featured</Pill>}
             {availability?.label && <Pill tone={unavailableToday ? "garnet" : "bronze"} className={unavailableToday ? "bg-garnet-700/10 text-garnet-700 ring-garnet-600/30" : "bg-bronze-400/25 text-wood-700 ring-bronze-500/40"}>{availability.label}</Pill>}
             {item.dietaryTags.map((t) => (
               <DietaryBadge key={t} tag={t} size="xs" tone="light" />

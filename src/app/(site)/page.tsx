@@ -15,11 +15,12 @@ import { flattenItems, getMenuTree } from "@/lib/data/menu";
 import { getMedia } from "@/lib/data/media";
 import { getAyce, getRestaurant } from "@/lib/data/restaurant";
 import { mediaForFile, toLite, toMediaLite } from "@/lib/menu-types";
+import { pageMeta } from "@/lib/seo";
 import { getSiteChrome } from "@/lib/site";
 
 export async function generateMetadata(): Promise<Metadata> {
   const r = await getRestaurant();
-  return { title: { absolute: r.seoTitle ?? `${r.name} — ${r.category} · ${r.city}, ${r.state}` }, description: r.seoDescription ?? r.description, alternates: { canonical: "/" } };
+  return pageMeta(r, { title: r.seoTitle ?? `${r.name} — ${r.category} · ${r.city}, ${r.state}`, description: r.seoDescription ?? r.description, path: "/", absoluteTitle: true });
 }
 
 export default async function HomePage() {

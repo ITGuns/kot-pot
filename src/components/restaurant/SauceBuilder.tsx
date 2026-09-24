@@ -81,7 +81,6 @@ export function SauceBuilder({ sauces, tagline, tone = "dark", compact = false }
               )}
             </div>
             <p className={cn("mt-4 text-[13px]", light ? "text-ink-500" : "text-ivory-100/70")}>
-              Sauces are mixed at the table.{" "}
               <Link href="/menu?category=sauce-bar" className="font-semibold underline-offset-4 hover:underline">
                 See the sauce bar on the menu
               </Link>

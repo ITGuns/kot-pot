@@ -102,6 +102,18 @@ export function parsePgTimestamp(value: string): Date {
   return new Date(s);
 }
 
+/** Like daysLabel, but ordered Mon→Sun so weekends read "Sat & Sun", e.g. [1..5] → "Mon–Fri", [6,0] → "Sat & Sun". */
+export function daysLabelWeek(days: number[] | null | undefined): string {
+  if (!days || days.length === 0) return "";
+  const order = [1, 2, 3, 4, 5, 6, 0];
+  const sorted = [...new Set(days)].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+  if (sorted.length === 7) return "Daily";
+  const contiguous = sorted.every((d, i) => i === 0 || order.indexOf(d) === order.indexOf(sorted[i - 1]) + 1);
+  if (contiguous && sorted.length > 2) return `${DAY_SHORT[sorted[0]]}–${DAY_SHORT[sorted[sorted.length - 1]]}`;
+  if (contiguous && sorted.length === 2) return `${DAY_SHORT[sorted[0]]} & ${DAY_SHORT[sorted[1]]}`;
+  return sorted.map((d) => DAY_SHORT[d]).join(", ");
+}
+
 export function phoneHref(phone: string): string {
   return `tel:+1${phone.replace(/\D/g, "")}`;
 }

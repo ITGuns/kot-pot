@@ -157,7 +157,7 @@ export function ItemEditor({ item, defaultSectionId, categories, groups, library
       <section className="space-y-4 border-t border-zinc-100 pt-5">
         <Field label="Notes" htmlFor="i-notes" error={errors.notes} hint="Shown under the description (pairings, allergens…)"><Textarea id="i-notes" value={f.notes} onChange={(e) => set("notes", e.target.value)} /></Field>
         <div className="flex flex-wrap gap-6">
-          <Toggle checked={f.featured} onChange={(v) => set("featured", v)} label="Featured" description="Show in the homepage signature carousel" />
+          <Toggle checked={f.featured} onChange={(v) => set("featured", v)} label="Featured" description="Show in the homepage featured carousel" />
           <Toggle checked={f.active} onChange={(v) => set("active", v)} label="Active" description="Visible on the public menu" />
         </div>
       </section>

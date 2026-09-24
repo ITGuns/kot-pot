@@ -60,7 +60,7 @@ test.describe("Other public pages & routes", () => {
     expect((await request.get("/favicon.ico")).status()).toBe(200);
     expect((await request.get("/icon")).headers()["content-type"]).toContain("image/png");
     expect((await request.get("/uploads/does-not-exist.png")).status()).toBe(404);
-    expect((await request.get("/uploads/..%2F..%2Fetc%2Fpasswd")).status()).toBe(404);
+    expect([400, 404]).toContain((await request.get("/uploads/..%2F..%2Fetc%2Fpasswd")).status()); // Vercel rejects traversal at the edge with 400
 
     const admin = await request.get("/admin", { maxRedirects: 0 });
     expect(admin.status()).toBe(307);

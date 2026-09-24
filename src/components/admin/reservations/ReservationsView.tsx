@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { deleteReservation, updateReservationStatus } from "@/actions/reservations";
 import type { Reservation, ReservationStatus } from "@/db/schema";
@@ -32,6 +32,7 @@ export function ReservationsView({
   occasions: string[];
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const toast = useToast();
   const [pending, start] = useTransition();
   const [editing, setEditing] = useState<Reservation | null | "new">(null);
@@ -39,10 +40,11 @@ export function ReservationsView({
   const [busyId, setBusyId] = useState<number | null>(null);
   const [q, setQ] = useState(filters.q);
 
+  // Merge onto the live URL (not the props) so quick successive filter changes never clobber each other.
   const push = (next: Partial<Filters>) => {
-    const p = new URLSearchParams();
-    const merged = { ...filters, ...next };
-    Object.entries(merged).forEach(([k, v]) => v && p.set(k, v));
+    const p = new URLSearchParams(searchParams.toString());
+    if (!p.has("view")) p.set("view", filters.view);
+    Object.entries(next).forEach(([k, v]) => (v ? p.set(k, v) : p.delete(k)));
     start(() => router.push(`/admin/reservations?${p.toString()}`));
   };
 

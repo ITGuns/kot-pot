@@ -15,7 +15,11 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ file: stri
     headers: {
       "Content-Type": row.mime,
       "Content-Length": String(row.data.length),
+      // Browsers and the image optimizer may cache for a year (file names are unique UUIDs);
+      // the CDN must not, so deleting or replacing an upload takes effect immediately.
       "Cache-Control": "public, max-age=31536000, immutable",
+      "Vercel-CDN-Cache-Control": "no-store",
+      "CDN-Cache-Control": "no-store",
     },
   });
 }

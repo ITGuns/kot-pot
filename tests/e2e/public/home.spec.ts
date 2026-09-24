@@ -79,7 +79,7 @@ test.describe("Homepage", () => {
     expect(data.openingHoursSpecification.length).toBe(7);
     expect(data.priceRange).toBe("$30–40 per person");
     expect(data.aggregateRating).toMatchObject({ ratingValue: "4.5", reviewCount: 411 });
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /^http:\/\/localhost:3000\/?$/);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", new RegExp(`^${(process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000").replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}\\/?$`));
     await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute("content", "Kot Pot I");
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /All-you-can-eat menu, premium marbled meats/);
   });

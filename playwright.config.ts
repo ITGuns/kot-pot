@@ -5,7 +5,13 @@ import { defineConfig, devices } from "@playwright/test";
  * and the database in DATABASE_URL. Tests create clearly-labelled "QA" records
  * and remove them afterwards; point DATABASE_URL at a staging database when
  * the production data must not be touched.
+ *
+ * Set PLAYWRIGHT_BASE_URL=https://your-deployment to run the same suite against
+ * a deployed site (DATABASE_URL must point at that deployment's database).
  */
+const BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
+const REMOTE = Boolean(process.env.PLAYWRIGHT_BASE_URL);
+
 export default defineConfig({
   testDir: "tests/e2e",
   timeout: 90_000,
@@ -15,7 +21,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 1,
   reporter: [["list"], ["html", { open: "never", outputFolder: "tests/report" }]],
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: BASE_URL,
     actionTimeout: 20_000,
     navigationTimeout: 90_000,
     trace: "retain-on-failure",
@@ -27,10 +33,12 @@ export default defineConfig({
     { name: "mobile", testMatch: /mobile\.spec\.ts/, dependencies: ["setup"], use: { ...devices["Pixel 7"] } },
     { name: "admin", testMatch: /admin\/.*\.spec\.ts/, dependencies: ["setup"], use: { ...devices["Desktop Chrome"], viewport: { width: 1360, height: 900 }, storageState: "tests/.auth/admin.json" } },
   ],
-  webServer: {
-    command: "npm run dev",
-    url: "http://localhost:3000/robots.txt",
-    reuseExistingServer: true,
-    timeout: 180_000,
-  },
+  webServer: REMOTE
+    ? undefined
+    : {
+        command: "npm run dev",
+        url: "http://localhost:3000/robots.txt",
+        reuseExistingServer: true,
+        timeout: 180_000,
+      },
 });

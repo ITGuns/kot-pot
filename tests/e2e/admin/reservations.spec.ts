@@ -60,9 +60,12 @@ test.describe("Admin reservations", () => {
     await expect(page.locator("main")).toContainText(/\d{4}/);
 
     await page.getByRole("tab", { name: "List" }).click();
+    await expect(page).toHaveURL(/view=list/);
     await page.getByRole("combobox").first().selectOption("all");
+    await expect(page).toHaveURL(/status=all/);
     await page.getByPlaceholder("Search name, email, phone, code").fill("qa-admin");
     await page.getByRole("button", { name: "Search" }).click();
+    await expect(page).toHaveURL(/q=qa-admin/);
     const found = page.locator("tbody tr", { hasText: "QA Staff" });
     await found.getByRole("button", { name: "Delete" }).click();
     await page.getByRole("alertdialog").getByRole("button", { name: "Delete" }).click();

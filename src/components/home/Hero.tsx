@@ -79,12 +79,14 @@ export function Hero({
     <section ref={ref} className="relative isolate flex min-h-[100svh] items-end overflow-hidden bg-ink-950 text-ivory-50">
       <motion.div style={{ y: imgY, scale: imgScale }} className="absolute inset-0 -z-10 will-change-transform">
         {image && (
-          <motion.div initial={reduce ? false : { opacity: 0, scale: 1.06 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.8, ease }} className="absolute inset-0">
+          <motion.div initial={reduce ? false : { scale: 1.08 }} animate={{ scale: 1 }} transition={{ duration: 2.2, ease }} className="absolute inset-0">
             <Image src={image.file} alt={image.alt} fill priority fetchPriority="high" sizes="100vw" className="object-cover" style={{ objectPosition: `${image.focalX}% ${image.focalY}%` }} />
           </motion.div>
         )}
-        <motion.div aria-hidden initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.6, delay: 0.2 }} className="absolute inset-0 bg-[radial-gradient(120%_80%_at_70%_20%,transparent_25%,rgb(10_9_8/0.6)_70%)]" />
-        <motion.div aria-hidden initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.6, delay: 0.3 }} className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/55 to-ink-950/15" />
+        <div aria-hidden className="absolute inset-0 bg-[radial-gradient(120%_80%_at_70%_20%,transparent_25%,rgb(10_9_8/0.6)_70%)]" />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/55 to-ink-950/15" />
+        {/* Fade-in from black without hiding the image itself, so the browser records it as the LCP element. */}
+        <motion.div aria-hidden initial={reduce ? false : { opacity: 0.85 }} animate={{ opacity: 0 }} transition={{ duration: 1.4, ease: "easeOut" }} className="pointer-events-none absolute inset-0 bg-ink-950" />
         <div aria-hidden className="absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-ink-950/75 to-transparent" />
       </motion.div>
       <SteamBackdrop intensity={0.85} />

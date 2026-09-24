@@ -10,6 +10,7 @@ import { daysLabelWeek, money, time12 } from "@/lib/format";
 import { cn } from "@/lib/cn";
 import { Reveal } from "@/components/ui/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
+import { onTabListKeyDown } from "@/lib/tabs";
 
 function Price({ cents, big }: { cents: number; big?: boolean }) {
   const [dollars, c] = money(cents, { always: true }).replace("$", "").split(".");
@@ -68,15 +69,18 @@ export function AycePricing({
             {blurb && <p className={cn("mt-6 max-w-md text-[17px] leading-relaxed", light ? "text-ink-700" : "text-ivory-100/75")}>{blurb}</p>}
           </Reveal>
           <Reveal delay={0.1} className="mt-8">
-            <div role="tablist" aria-label="Days" className={cn("inline-flex flex-wrap gap-1 rounded-full p-1", light ? "bg-ink-900/6" : "bg-ivory-50/8")}>
+            <div role="tablist" aria-label="Days" onKeyDown={onTabListKeyDown} className={cn("inline-flex flex-wrap gap-1 rounded-full p-1", light ? "bg-ink-900/6" : "bg-ivory-50/8")}>
               {groups.map((g) => {
                 const on = g.key === group.key;
                 return (
                   <button
                     key={g.key}
+                    id={`ayce-day-${g.key}`}
                     type="button"
                     role="tab"
                     aria-selected={on}
+                    aria-controls="ayce-panel"
+                    tabIndex={on ? 0 : -1}
                     onClick={() => setGroupKey(g.key)}
                     className={cn("relative h-11 rounded-full px-5 text-[14px] font-semibold transition-colors", on ? (light ? "text-ivory-50" : "text-ink-900") : light ? "text-ink-700 hover:text-ink-900" : "text-ivory-100/75 hover:text-ivory-50")}
                   >
@@ -111,15 +115,18 @@ export function AycePricing({
           <div className={cn("relative overflow-hidden rounded-[32px] p-7 shadow-lift sm:p-10", light ? "bg-ink-900 text-ivory-50" : "bg-ivory-50 text-ink-900")}>
             <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-chili-500/25 blur-3xl" />
             {group.sessions.length > 1 && (
-              <div role="tablist" aria-label="Session" className="relative z-[2] flex flex-wrap gap-2">
+              <div role="tablist" aria-label="Session" onKeyDown={onTabListKeyDown} className="relative z-[2] flex flex-wrap gap-2">
                 {group.sessions.map((s) => {
                   const on = s.id === session.id;
                   return (
                     <button
                       key={s.id}
+                      id={`ayce-session-${s.id}`}
                       type="button"
                       role="tab"
                       aria-selected={on}
+                      aria-controls="ayce-panel"
+                      tabIndex={on ? 0 : -1}
                       onClick={() => setSessionId(s.id)}
                       className={cn(
                         "flex h-11 items-center gap-2 rounded-full border px-4 font-label text-[15px] tracking-[0.18em] transition-colors",
@@ -136,6 +143,9 @@ export function AycePricing({
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={session.id}
+                id="ayce-panel"
+                role="tabpanel"
+                aria-label={`${group.label}: ${session.session}`}
                 initial={reduce ? { opacity: 0 } : { opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={reduce ? { opacity: 0 } : { opacity: 0, y: -12 }}

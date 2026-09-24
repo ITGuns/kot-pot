@@ -73,7 +73,7 @@ function CategoryRow({ category: c, onEdit, onDelete, onDragEnd }: { category: C
       <button type="button" onPointerDown={(e) => controls.start(e)} className="cursor-grab touch-none text-zinc-400 hover:text-zinc-700 active:cursor-grabbing" aria-label="Drag to reorder">⋮⋮</button>
       <div className="min-w-0 flex-1">
         <p className="flex items-center gap-2 text-[14px] font-medium text-zinc-900">{c.name} <span className="font-mono text-[11px] text-zinc-400">/{c.slug}</span> {!c.active && <Tag tone="gray">Hidden</Tag>}</p>
-        <p className="truncate text-[12px] text-zinc-500">{c.sections.length} sections · {items} items{c.hoursCategory ? ` · follows ${HOURS_CATEGORY_LABELS[c.hoursCategory].toLowerCase()} hours` : ""}{c.hoursNote ? ` · ${c.hoursNote}` : ""}</p>
+        <p className="truncate text-[12px] text-zinc-500">{c.sections.length} {c.sections.length === 1 ? "section" : "sections"} · {items} {items === 1 ? "item" : "items"}{c.hoursCategory ? ` · follows ${HOURS_CATEGORY_LABELS[c.hoursCategory].toLowerCase()}` : ""}{c.hoursNote ? ` · ${c.hoursNote}` : ""}</p>
       </div>
       <Btn size="sm" onClick={onEdit}>Edit</Btn>
       <Btn size="sm" variant="ghost" className="text-red-600" onClick={onDelete}>Delete</Btn>

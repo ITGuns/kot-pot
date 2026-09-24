@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MEDIA_TAG_LABELS } from "@/lib/constants";
 import type { MediaLite } from "@/lib/menu-types";
 import { cn } from "@/lib/cn";
+import { onTabListKeyDown } from "@/lib/tabs";
 
 export function GalleryExplorer({ images, initialPhoto }: { images: MediaLite[]; initialPhoto?: number }) {
   const [tag, setTag] = useState("all");
@@ -25,6 +26,25 @@ export function GalleryExplorer({ images, initialPhoto }: { images: MediaLite[];
     [list, openIndex],
   );
 
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const returnTo = useRef<{ el: Element | null; id: number | null }>({ el: null, id: null });
+  const isOpen = open != null;
+
+  // Move focus into the lightbox when it opens and back to the photo that opened it when it closes.
+  useEffect(() => {
+    if (!isOpen) return;
+    returnTo.current = { el: document.activeElement, id: open };
+    const t = requestAnimationFrame(() => closeRef.current?.focus());
+    return () => {
+      cancelAnimationFrame(t);
+      const { el, id } = returnTo.current;
+      const target = el instanceof HTMLElement && el.isConnected && el !== document.body ? el : document.querySelector<HTMLElement>(`[data-photo-id="${id}"]`);
+      target?.focus();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
   useEffect(() => {
     if (open == null) return;
     document.body.style.overflow = "hidden";
@@ -32,6 +52,20 @@ export function GalleryExplorer({ images, initialPhoto }: { images: MediaLite[];
       if (e.key === "Escape") setOpen(null);
       if (e.key === "ArrowRight") step(1);
       if (e.key === "ArrowLeft") step(-1);
+      if (e.key === "Tab" && dialogRef.current) {
+        const focusables = Array.from(dialogRef.current.querySelectorAll<HTMLElement>("button")).filter((b) => b.offsetParent !== null);
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const inside = dialogRef.current.contains(document.activeElement);
+        if (e.shiftKey && (document.activeElement === first || !inside)) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && (document.activeElement === last || !inside)) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => {
@@ -63,7 +97,7 @@ export function GalleryExplorer({ images, initialPhoto }: { images: MediaLite[];
         <ul tabIndex={0} className="scrollbar-none mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 focus-visible:outline-2 focus-visible:outline-chili-400 sm:px-8 lg:px-12" aria-label="Featured photos">
           {strip.map((img, i) => (
             <li key={img.id} className="shrink-0 snap-start">
-              <button type="button" onClick={() => setOpen(img.id)} className="group relative block h-[300px] overflow-hidden rounded-[22px] bg-ink-800 sm:h-[380px] lg:h-[440px]" style={{ aspectRatio: `${img.width}/${img.height}` }}>
+              <button type="button" data-photo-id={img.id} onClick={() => setOpen(img.id)} className="group relative block h-[300px] overflow-hidden rounded-[22px] bg-ink-800 sm:h-[380px] lg:h-[440px]" style={{ aspectRatio: `${img.width}/${img.height}` }}>
                 <Image src={img.file} alt={img.alt} fill sizes="(min-width:1024px) 520px, 360px" loading={i < 2 ? "eager" : "lazy"} className="object-cover transition-transform duration-[1.4s] ease-out-expo group-hover:scale-[1.05]" style={{ objectPosition: `${img.focalX}% ${img.focalY}%` }} />
                 <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-ink-950/70 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 <span className="absolute inset-x-4 bottom-4 translate-y-2 text-left text-[13px] font-medium text-ivory-50 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">{img.caption ?? img.alt}</span>
@@ -76,13 +110,16 @@ export function GalleryExplorer({ images, initialPhoto }: { images: MediaLite[];
       {/* Filter + masonry */}
       <section className="bg-ivory-50 py-16 text-ink-900 lg:py-24">
         <div className="container-site">
-          <div className="flex flex-wrap items-center gap-2" role="tablist" aria-label="Filter photos">
+          <div className="flex flex-wrap items-center gap-2" role="tablist" aria-label="Filter photos" onKeyDown={onTabListKeyDown}>
             {tags.map((t) => (
               <button
                 key={t.key}
+                id={`gal-tab-${t.key}`}
                 type="button"
                 role="tab"
                 aria-selected={tag === t.key}
+                aria-controls="gallery-grid"
+                tabIndex={tag === t.key ? 0 : -1}
                 onClick={() => setTag(t.key)}
                 className={cn("relative h-10 rounded-full px-4 text-[14px] font-semibold transition-colors", tag === t.key ? "text-ivory-50" : "text-ink-700 hover:bg-ink-900/5")}
               >
@@ -91,11 +128,12 @@ export function GalleryExplorer({ images, initialPhoto }: { images: MediaLite[];
               </button>
             ))}
           </div>
+          <div id="gallery-grid" role="tabpanel" aria-labelledby={`gal-tab-${tag}`}>
           <motion.ul layout className="mt-10 columns-2 gap-4 md:columns-3 xl:columns-4 [&>li]:mb-4 [&>li]:break-inside-avoid" aria-live="polite">
             <AnimatePresence initial={false}>
               {list.map((img) => (
                 <motion.li key={img.id} layout initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.35 }}>
-                  <button type="button" onClick={() => setOpen(img.id)} className="group relative block w-full overflow-hidden rounded-[20px] bg-ink-800 shadow-card" style={{ aspectRatio: `${img.width}/${img.height}` }}>
+                  <button type="button" data-photo-id={img.id} onClick={() => setOpen(img.id)} className="group relative block w-full overflow-hidden rounded-[20px] bg-ink-800 shadow-card" style={{ aspectRatio: `${img.width}/${img.height}` }}>
                     <Image src={img.file} alt={img.alt} fill sizes="(min-width:1280px) 22vw, (min-width:768px) 30vw, 48vw" className="object-cover transition-transform duration-[1.4s] ease-out-expo group-hover:scale-[1.06]" style={{ objectPosition: `${img.focalX}% ${img.focalY}%` }} />
                     <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-ink-950/70 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                     <span className="absolute inset-x-4 bottom-4 translate-y-2 text-left text-[13px] font-medium leading-snug text-ivory-50 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">{img.caption ?? img.alt}</span>
@@ -104,6 +142,7 @@ export function GalleryExplorer({ images, initialPhoto }: { images: MediaLite[];
               ))}
             </AnimatePresence>
           </motion.ul>
+          </div>
           {list.length === 0 && <p className="mt-10 text-ink-500">No photos in this set yet.</p>}
         </div>
       </section>
@@ -121,8 +160,9 @@ export function GalleryExplorer({ images, initialPhoto }: { images: MediaLite[];
             role="dialog"
             aria-modal="true"
             aria-label={current.alt}
+            ref={dialogRef}
           >
-            <button type="button" onClick={() => setOpen(null)} aria-label="Close" className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-ivory-50/10 text-ivory-50 backdrop-blur transition hover:bg-ivory-50/20">
+            <button ref={closeRef} type="button" onClick={() => setOpen(null)} aria-label="Close" className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-ivory-50/10 text-ivory-50 backdrop-blur transition hover:bg-ivory-50/20">
               <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 5l10 10M15 5L5 15" /></svg>
             </button>
             <button type="button" onClick={(e) => { e.stopPropagation(); step(-1); }} aria-label="Previous photo" className="absolute left-3 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-ivory-50/10 text-ivory-50 backdrop-blur transition hover:bg-ivory-50/20 sm:flex">

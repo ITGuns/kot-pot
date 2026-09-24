@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Wordmark } from "./Wordmark";
 import { ButtonLink } from "@/components/ui/Button";
@@ -41,6 +41,8 @@ export function Header({ name, status, phone, phoneHref, address, hoursToday }: 
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
   const overHero = HERO_PAGES.includes(pathname);
 
   useEffect(() => {
@@ -61,13 +63,35 @@ export function Header({ name, status, phone, phoneHref, address, hoursToday }: 
     };
   }, [open]);
 
+  // While the mobile menu is open, everything behind it is inert (no Tab stops under the overlay)
+  // and Escape closes it, returning focus to the toggle.
+  useEffect(() => {
+    if (!open) return;
+    const header = headerRef.current;
+    const behind = Array.from(document.body.children).filter((el): el is HTMLElement => el instanceof HTMLElement && el !== header && !el.contains(header));
+    const previous = behind.map((el) => el.inert);
+    behind.forEach((el) => (el.inert = true));
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        toggleRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      behind.forEach((el, i) => (el.inert = previous[i]));
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
   const solid = scrolled || !overHero || open;
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50">
+    <header ref={headerRef} className="fixed inset-x-0 top-0 z-50">
       {/* Utility strip (desktop) */}
       <div
-        aria-hidden={scrolled}
+        aria-hidden={scrolled || undefined}
+        inert={scrolled}
         className={cn(
           "hidden overflow-hidden transition-[max-height,opacity] duration-500 ease-out-expo lg:block",
           scrolled ? "max-h-0 opacity-0" : "max-h-10 opacity-100",
@@ -107,8 +131,12 @@ export function Header({ name, status, phone, phoneHref, address, hoursToday }: 
       >
         <div className={cn("container-site flex items-center justify-between gap-6 transition-[height] duration-500 ease-out-expo", scrolled ? "h-[62px] md:h-[68px]" : "h-[68px] md:h-[84px]")}>
           <Link href="/" className="relative z-10 shrink-0" aria-label={`${name} home`}>
-            <Wordmark name={name} size="sm" className="md:hidden" />
-            <Wordmark name={name} size="md" className="hidden md:inline-flex" />
+            <span className="md:hidden">
+              <Wordmark name={name} size="sm" />
+            </span>
+            <span className="hidden md:inline">
+              <Wordmark name={name} size="md" />
+            </span>
           </Link>
 
           <nav aria-label="Primary" className="hidden items-center gap-7 lg:flex">
@@ -148,6 +176,7 @@ export function Header({ name, status, phone, phoneHref, address, hoursToday }: 
               Book
             </ButtonLink>
             <button
+              ref={toggleRef}
               type="button"
               aria-expanded={open}
               aria-controls="mobile-nav"

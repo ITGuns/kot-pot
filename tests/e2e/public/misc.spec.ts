@@ -42,6 +42,33 @@ test.describe("Other public pages & routes", () => {
     await expect(dialog).toBeHidden();
   });
 
+  test("gallery lightbox moves focus in, traps Tab and restores focus on close", async ({ page }) => {
+    await page.goto("/gallery");
+    const thumb = page.locator("ul.columns-2 button").first();
+    await thumb.focus();
+    await page.keyboard.press("Enter");
+    const dialog = page.getByRole("dialog");
+    await expect(dialog.getByRole("button", { name: "Close" })).toBeFocused();
+    for (let i = 0; i < 5; i++) {
+      await page.keyboard.press("Tab");
+      expect(await dialog.evaluate((d) => d.contains(document.activeElement))).toBe(true);
+    }
+    await dialog.getByRole("button", { name: "Close" }).focus();
+    await page.keyboard.press("Enter");
+    await expect(dialog).toBeHidden();
+    await expect(thumb).toBeFocused();
+  });
+
+  test("scrolled desktop header leaves no hidden focusable links", async ({ page }) => {
+    await page.goto("/menu");
+    await page.mouse.wheel(0, 600);
+    await page.waitForTimeout(600);
+    const hiddenFocusable = await page.evaluate(() =>
+      Array.from(document.querySelectorAll<HTMLElement>('[aria-hidden="true"] a, [aria-hidden="true"] button')).filter((el) => !el.closest("[inert]")).length,
+    );
+    expect(hiddenFocusable).toBe(0);
+  });
+
   test("gallery deep link opens the lightbox", async ({ page }) => {
     await page.goto("/gallery?photo=1");
     await expect(page.getByRole("dialog")).toBeVisible();

@@ -1,6 +1,7 @@
 import type { ReservationStatus } from "@/db/schema";
 import { RESERVATION_STATUS_LABELS, DAY_SHORT } from "@/lib/constants";
 import { cn } from "@/lib/cn";
+import { onTabListKeyDown } from "@/lib/tabs";
 
 export function PageHeader({ title, description, actions }: { title: string; description?: string; actions?: React.ReactNode }) {
   return (
@@ -168,9 +169,9 @@ export function DaysPicker({ value, onChange, disabled }: { value: number[]; onC
 
 export function Segmented<T extends string>({ value, onChange, options, className }: { value: T; onChange: (v: T) => void; options: { value: T; label: string }[]; className?: string }) {
   return (
-    <div className={cn("inline-flex rounded-lg border border-zinc-200 bg-zinc-100 p-0.5", className)} role="tablist">
+    <div className={cn("inline-flex rounded-lg border border-zinc-200 bg-zinc-100 p-0.5", className)} role="tablist" onKeyDown={onTabListKeyDown}>
       {options.map((o) => (
-        <button key={o.value} type="button" role="tab" aria-selected={o.value === value} onClick={() => onChange(o.value)} className={cn("h-8 rounded-md px-3 text-[13px] font-medium transition", o.value === value ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-600 hover:text-zinc-900")}>
+        <button key={o.value} type="button" role="tab" aria-selected={o.value === value} tabIndex={o.value === value ? 0 : -1} onClick={() => onChange(o.value)} className={cn("h-8 rounded-md px-3 text-[13px] font-medium transition", o.value === value ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-600 hover:text-zinc-900")}>
           {o.label}
         </button>
       ))}

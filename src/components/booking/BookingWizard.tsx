@@ -40,6 +40,7 @@ export function BookingWizard({
   const [result, setResult] = useState<PublicReservation | null>(null);
   const idem = useRef<string>("");
   const topRef = useRef<HTMLDivElement>(null);
+  const focusStep = useRef(false);
 
   useEffect(() => {
     idem.current = crypto.randomUUID();
@@ -58,6 +59,7 @@ export function BookingWizard({
     setDir(next > step ? 1 : -1);
     setStep(next);
     setError(null);
+    focusStep.current = true;
     requestAnimationFrame(() => {
       const top = (topRef.current?.getBoundingClientRect().top ?? 0) + window.scrollY - 110;
       if (window.scrollY > top) window.scrollTo({ top, behavior: reduce ? "auto" : "smooth" });
@@ -100,6 +102,8 @@ export function BookingWizard({
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email.trim())) e.email = "Enter a valid email";
     if (details.phone.replace(/\D/g, "").length < 7) e.phone = "Enter a valid phone number";
     setFieldErrors(e);
+    const firstInvalid = ["firstName", "lastName", "email", "phone"].find((k) => e[k]);
+    if (firstInvalid) requestAnimationFrame(() => document.getElementById(`f-${firstInvalid}`)?.focus());
     return Object.keys(e).length === 0;
   };
 
@@ -202,10 +206,25 @@ export function BookingWizard({
 
         <div className="relative mt-8 min-h-[420px]">
           <AnimatePresence mode="wait" custom={dir} initial={false}>
-            <motion.div key={step} custom={dir} variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}>
+            <motion.div
+              key={step}
+              custom={dir}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              onAnimationComplete={(definition) => {
+                // Move keyboard / screen-reader focus to the new step's heading once it has animated in.
+                if (definition === "center" && focusStep.current) {
+                  focusStep.current = false;
+                  topRef.current?.querySelector<HTMLElement>("h2[id^='step-']")?.focus();
+                }
+              }}
+            >
               {step === 0 && (
                 <section aria-labelledby="step-date">
-                  <h2 id="step-date" className="font-display text-3xl text-ink-900 sm:text-4xl">When are you coming in?</h2>
+                  <h2 id="step-date" tabIndex={-1} className="font-display text-3xl text-ink-900 outline-none sm:text-4xl">When are you coming in?</h2>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {quickDates(bookable.from)
                       .filter((q) => !bookable.closedDates.includes(q.date) && q.date <= bookable.to)
@@ -223,7 +242,7 @@ export function BookingWizard({
 
               {step === 1 && (
                 <section aria-labelledby="step-party">
-                  <h2 id="step-party" className="font-display text-3xl text-ink-900 sm:text-4xl">How many guests?</h2>
+                  <h2 id="step-party" tabIndex={-1} className="font-display text-3xl text-ink-900 outline-none sm:text-4xl">How many guests?</h2>
                   <p className="mt-2 text-[15px] text-ink-700">{longDate(date!)}</p>
                   <div className="mt-6 grid grid-cols-4 gap-3 sm:grid-cols-5 md:grid-cols-6">
                     {Array.from({ length: settings.maxPartySize - settings.minPartySize + 1 }, (_, i) => settings.minPartySize + i).map((n) => (
@@ -252,7 +271,7 @@ export function BookingWizard({
 
               {step === 2 && (
                 <section aria-labelledby="step-time">
-                  <h2 id="step-time" className="font-display text-3xl text-ink-900 sm:text-4xl">Pick a time</h2>
+                  <h2 id="step-time" tabIndex={-1} className="font-display text-3xl text-ink-900 outline-none sm:text-4xl">Pick a time</h2>
                   <p className="mt-2 text-[15px] text-ink-700">{longDate(date!)} · party of {party}</p>
                   <div className="mt-6" aria-live="polite">
                     {loadingSlots && (
@@ -277,7 +296,7 @@ export function BookingWizard({
 
               {step === 3 && (
                 <section aria-labelledby="step-details">
-                  <h2 id="step-details" className="font-display text-3xl text-ink-900 sm:text-4xl">Who's the table for?</h2>
+                  <h2 id="step-details" tabIndex={-1} className="font-display text-3xl text-ink-900 outline-none sm:text-4xl">Who's the table for?</h2>
                   <form
                     className="mt-6 grid gap-4 sm:grid-cols-2"
                     noValidate
@@ -320,7 +339,7 @@ export function BookingWizard({
 
               {step === 4 && (
                 <section aria-labelledby="step-confirm">
-                  <h2 id="step-confirm" className="font-display text-3xl text-ink-900 sm:text-4xl">Everything look right?</h2>
+                  <h2 id="step-confirm" tabIndex={-1} className="font-display text-3xl text-ink-900 outline-none sm:text-4xl">Everything look right?</h2>
                   <div className="mt-6 rounded-[24px] border border-ink-900/10 bg-ivory-50 p-6 shadow-card sm:p-8">
                     <dl className="grid gap-5 sm:grid-cols-3">
                       <div><dt className="eyebrow text-ink-500">Date</dt><dd className="mt-1 font-display text-xl text-ink-900">{longDate(date!)}</dd></div>

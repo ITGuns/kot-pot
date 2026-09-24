@@ -8,6 +8,7 @@ import { MeatGrid } from "@/components/restaurant/MeatGrid";
 import { Reveal } from "@/components/ui/Reveal";
 import type { MediaLite, MenuItemLite } from "@/lib/menu-types";
 import { cn } from "@/lib/cn";
+import { onTabListKeyDown } from "@/lib/tabs";
 
 type Mode = "bbq" | "hotpot";
 
@@ -30,16 +31,18 @@ export function Experience({ meats, broths, hotpotImage, bbqTagline, brothTaglin
             </h2>
           </Reveal>
           <Reveal delay={0.1}>
-            <div role="tablist" aria-label="Experience" className="inline-flex rounded-full border border-ivory-50/12 bg-ivory-50/5 p-1">
+            <div role="tablist" aria-label="Experience" onKeyDown={onTabListKeyDown} className="inline-flex rounded-full border border-ivory-50/12 bg-ivory-50/5 p-1">
               {tabs.map((t) => {
                 const on = t.key === mode;
                 return (
                   <button
                     key={t.key}
                     type="button"
+                    id={`experience-tab-${t.key}`}
                     role="tab"
                     aria-selected={on}
-                    aria-controls={`experience-${t.key}`}
+                    aria-controls="experience-panel"
+                    tabIndex={on ? 0 : -1}
                     onClick={() => setMode(t.key)}
                     className={cn("relative h-12 rounded-full px-6 font-label text-[16px] tracking-[0.2em] transition-colors sm:px-8", on ? "text-ink-900" : "text-ivory-100/75 hover:text-ivory-50")}
                   >
@@ -55,7 +58,7 @@ export function Experience({ meats, broths, hotpotImage, bbqTagline, brothTaglin
         <div className="relative mt-12 min-h-[420px] min-w-0">
           <AnimatePresence mode="wait" initial={false}>
             {mode === "bbq" ? (
-              <motion.div key="bbq" id="experience-bbq" role="tabpanel" initial={reduce ? { opacity: 0 } : { opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={reduce ? { opacity: 0 } : { opacity: 0, y: -16 }} transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}>
+              <motion.div key="bbq" id="experience-panel" role="tabpanel" aria-labelledby="experience-tab-bbq" initial={reduce ? { opacity: 0 } : { opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={reduce ? { opacity: 0 } : { opacity: 0, y: -16 }} transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}>
                 {bbqTagline && <p className="mb-6 font-display text-2xl italic text-ivory-100/80">{bbqTagline}</p>}
                 <MeatGrid items={meats} trigger="mount" />
                 <div className="mt-8">
@@ -65,7 +68,7 @@ export function Experience({ meats, broths, hotpotImage, bbqTagline, brothTaglin
                 </div>
               </motion.div>
             ) : (
-              <motion.div key="hotpot" id="experience-hotpot" role="tabpanel" initial={reduce ? { opacity: 0 } : { opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={reduce ? { opacity: 0 } : { opacity: 0, y: -16 }} transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}>
+              <motion.div key="hotpot" id="experience-panel" role="tabpanel" aria-labelledby="experience-tab-hotpot" initial={reduce ? { opacity: 0 } : { opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={reduce ? { opacity: 0 } : { opacity: 0, y: -16 }} transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}>
                 <BrothSelector broths={broths} image={hotpotImage} tagline={brothTagline} />
                 <div className="mt-8">
                   <Link href="/hot-pot" className="inline-flex items-center gap-2 font-label text-[16px] tracking-[0.18em] text-ivory-50 hover:text-chili-300">

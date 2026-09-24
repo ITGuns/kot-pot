@@ -7,6 +7,7 @@ import { useState } from "react";
 import type { MediaLite, MenuItemLite } from "@/lib/menu-types";
 import { money } from "@/lib/format";
 import { cn } from "@/lib/cn";
+import { onTabListKeyDown } from "@/lib/tabs";
 
 export function BrothSelector({ broths, image, tagline, className }: { broths: MenuItemLite[]; image: MediaLite | null; tagline: string | null; className?: string }) {
   const reduce = useReducedMotion();
@@ -14,15 +15,6 @@ export function BrothSelector({ broths, image, tagline, className }: { broths: M
   const broth = broths[active];
   if (!broth) return null;
 
-  const onKey = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowDown" || e.key === "ArrowRight") {
-      e.preventDefault();
-      setActive((a) => (a + 1) % broths.length);
-    } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
-      e.preventDefault();
-      setActive((a) => (a - 1 + broths.length) % broths.length);
-    }
-  };
 
   return (
     <div className={cn("grid gap-6 lg:grid-cols-12 lg:gap-8", className)}>
@@ -30,7 +22,7 @@ export function BrothSelector({ broths, image, tagline, className }: { broths: M
       <div className="min-w-0 lg:col-span-5">
         <p className="eyebrow text-chili-300">Choose your broth</p>
         {tagline && <p className="mt-2 font-display text-2xl italic text-ivory-100/85">{tagline}</p>}
-        <div role="tablist" aria-label="Hot pot broths" aria-orientation="vertical" onKeyDown={onKey} className="scrollbar-none -mx-5 mt-5 flex gap-2 overflow-x-auto px-5 pb-2 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0">
+        <div role="tablist" aria-label="Hot pot broths" aria-orientation="vertical" onKeyDown={onTabListKeyDown} className="scrollbar-none -mx-5 mt-5 flex gap-2 overflow-x-auto px-5 pb-2 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0">
           {broths.map((b, i) => {
             const on = i === active;
             return (

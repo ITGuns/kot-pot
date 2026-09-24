@@ -50,6 +50,25 @@ test.describe("Reservations", () => {
     await expect(page.getByText("Pending", { exact: true })).toBeVisible();
   });
 
+  test("each wizard step moves focus to its heading and invalid fields get focus", async ({ page }) => {
+    const date = nextWeekday(4);
+    await page.goto("/book");
+    const day = page.getByRole("button", { name: dayButtonName(date) });
+    if (!(await day.isVisible())) await page.getByRole("button", { name: "Next month" }).click();
+    await day.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("heading", { name: "How many guests?" })).toBeFocused();
+    await page.locator("button[aria-pressed]").filter({ has: page.locator("span.font-display", { hasText: /^2$/ }) }).click();
+    await expect(page.getByRole("heading", { name: "Pick a time" })).toBeFocused();
+    await page.getByRole("button", { name: "12:00 PM", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Who's the table for?" })).toBeFocused();
+    await page.getByLabel(/^First name/).fill("");
+    await page.getByLabel(/^Last name/).fill("");
+    await page.getByRole("button", { name: "Review reservation" }).click();
+    await expect(page.getByLabel(/^First name/)).toBeFocused();
+    await expect(page.getByLabel(/^First name/)).toHaveAttribute("aria-invalid", "true");
+  });
+
   test("validates guest details without losing input", async ({ page }) => {
     const date = nextWeekday(4); // Thursday
     await page.goto("/book");

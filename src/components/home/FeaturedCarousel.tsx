@@ -79,7 +79,7 @@ export function FeaturedCarousel({ items }: { items: MenuItemLite[] }) {
         </Reveal>
       </div>
       <Reveal className="mt-10" amount={0.1}>
-        <DragCarousel ariaLabel="Featured dishes" trackClassName="px-5 sm:px-8 lg:px-12">
+        <DragCarousel ariaLabel="Featured dishes" trackClassName="px-5 scroll-px-5 sm:px-8 sm:scroll-px-8 lg:px-12 lg:scroll-px-12">
           {items.map((item, i) => (
             <li key={item.id} className="shrink-0 snap-start" aria-roledescription="slide" aria-label={`${i + 1} of ${items.length}`}>
               <FeaturedCard item={item} index={i} />

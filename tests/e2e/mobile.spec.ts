@@ -50,3 +50,30 @@ test.describe("Mobile layout", () => {
     }
   });
 });
+
+test.describe("Mobile header (regression: double wordmark pushed the menu button off-screen)", () => {
+  for (const width of [320, 375, 390, 430]) {
+    test(`header controls fit and the menu works at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 780 });
+      await page.goto("/");
+      const logo = page.getByRole("link", { name: "Kot Pot I home" });
+      expect(((await logo.innerText()).match(/kot pot i/gi) ?? []).length).toBe(1);
+      const toggle = page.getByRole("button", { name: "Open menu" });
+      const book = page.getByRole("banner").getByRole("link", { name: "Book", exact: true });
+      for (const el of [toggle, book]) {
+        const box = (await el.boundingBox())!;
+        expect(box.x).toBeGreaterThanOrEqual(0);
+        expect(box.x + box.width).toBeLessThanOrEqual(width);
+      }
+      await toggle.click();
+      const nav = page.getByRole("navigation", { name: "Mobile" });
+      await expect(nav.getByRole("link")).toHaveCount(6);
+      // Content behind the overlay is inert while the menu is open
+      expect(await page.locator("main").evaluate((el) => (el as HTMLElement).inert)).toBe(true);
+      await page.keyboard.press("Escape");
+      await expect(nav).toBeHidden();
+      await expect(page.getByRole("button", { name: "Open menu" })).toBeFocused();
+      expect(await page.locator("main").evaluate((el) => (el as HTMLElement).inert)).toBe(false);
+    });
+  }
+});

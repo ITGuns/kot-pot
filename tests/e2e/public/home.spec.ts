@@ -55,6 +55,62 @@ test.describe("Homepage", () => {
     await expect(section.locator("#broth-panel")).toContainText("Lemongrass, galangal, lime leaf");
   });
 
+  test("tab widgets follow the WAI-ARIA keyboard pattern", async ({ page }) => {
+    await page.goto("/");
+    // All-you-can-eat day tabs: arrow keys move focus AND selection
+    const days = page.locator("#all-you-can-eat").getByRole("tablist", { name: "Days" });
+    await days.scrollIntoViewIfNeeded();
+    await days.getByRole("tab", { name: /Monday – Friday/ }).focus();
+    await page.keyboard.press("ArrowRight");
+    const weekend = days.getByRole("tab", { name: /Sat · Sun · Holidays/ });
+    await expect(weekend).toBeFocused();
+    await expect(weekend).toHaveAttribute("aria-selected", "true");
+    await expect(page.locator("#ayce-panel")).toContainText("$34.99");
+
+    // Experience tabs, then broth tabs
+    const exp = page.locator("#experience");
+    await exp.scrollIntoViewIfNeeded();
+    await exp.getByRole("tab", { name: "Korean BBQ" }).focus();
+    await page.keyboard.press("ArrowRight");
+    await expect(exp.getByRole("tab", { name: "Hot Pot" })).toBeFocused();
+    const first = exp.getByRole("tab", { name: /Spicy Sichuan Mala/ });
+    await first.focus();
+    await page.keyboard.press("ArrowRight");
+    const second = exp.getByRole("tab", { name: /Tomato Comfort/ });
+    await expect(second).toBeFocused();
+    await expect(second).toHaveAttribute("aria-selected", "true");
+    await page.keyboard.press("End");
+    await expect(exp.getByRole("tab", { name: /Pork Bone \(Tonkotsu\)/ })).toBeFocused();
+    await expect(exp.locator("#broth-panel")).toContainText("18-hour rich, milky broth");
+  });
+
+  test("hero image is painted immediately so the browser records an LCP", async ({ page }) => {
+    await page.addInitScript(() => {
+      (window as unknown as { __lcp: string[] }).__lcp = [];
+      new PerformanceObserver((l) => l.getEntries().forEach((e) => (window as unknown as { __lcp: string[] }).__lcp.push((e as PerformanceEntry & { element?: Element }).element?.tagName ?? "?"))).observe({ type: "largest-contentful-paint", buffered: true });
+    });
+    await page.goto("/");
+    await page.waitForTimeout(3000);
+    const lcp = await page.evaluate(() => (window as unknown as { __lcp: string[] }).__lcp);
+    expect(lcp.length).toBeGreaterThan(0);
+  });
+
+  test("featured carousel arrows keep focus at the ends", async ({ page }) => {
+    await page.goto("/");
+    const region = page.getByRole("region", { name: "Featured dishes" });
+    await region.scrollIntoViewIfNeeded();
+    const prev = region.getByRole("button", { name: "Previous" });
+    const next = region.getByRole("button", { name: "Next" });
+    await expect(prev).toHaveAttribute("aria-disabled", "true");
+    await next.focus();
+    for (let i = 0; i < 10; i++) {
+      await page.keyboard.press("Enter");
+      await page.waitForTimeout(600); // let each smooth scroll settle, as a person would
+    }
+    await expect(next).toHaveAttribute("aria-disabled", "true");
+    await expect(next).toBeFocused();
+  });
+
   test("sauce builder toggles sauces into the bowl", async ({ page }) => {
     await page.goto("/");
     const section = page.locator("#sauce-bar");

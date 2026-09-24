@@ -24,6 +24,14 @@ export function MenuManager({ categories, groups, library }: { categories: Categ
   const [status, setStatus] = useState<"all" | "active" | "inactive">("all");
   const [featured, setFeatured] = useState(sp.get("featured") === "1");
   const [editing, setEditing] = useState<{ item: ItemNode | null; sectionId?: number; nonce: number } | null>(sp.get("new") ? { item: null, nonce: 1 } : null);
+  // "?new=1" (dashboard quick action) opens the editor once; drop it from the URL so reload/back doesn't reopen it.
+  useEffect(() => {
+    if (!sp.get("new")) return;
+    const params = new URLSearchParams(sp.toString());
+    params.delete("new");
+    router.replace(params.size ? `/admin/menu?${params.toString()}` : "/admin/menu", { scroll: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [sectionEdit, setSectionEdit] = useState<{ section: SectionNode | null } | null>(null);
   const [deleting, setDeleting] = useState<ItemNode | null>(null);
   const [busy, setBusy] = useState<number | null>(null);
@@ -73,7 +81,7 @@ export function MenuManager({ categories, groups, library }: { categories: Categ
   };
 
   const row = (item: ItemNode, withCategory = false) => (
-    <div className={cn("flex items-center gap-3 py-2.5", !item.active && "opacity-60")}>
+    <div className={cn("flex flex-wrap items-center gap-x-3 gap-y-2 py-2.5 sm:flex-nowrap", !item.active && "opacity-60")}>
       <span className="h-11 w-11 shrink-0 overflow-hidden rounded-md bg-zinc-100">
         {item.image ? <img src={item.image} alt="" className="h-full w-full object-cover" /> : <span className="flex h-full items-center justify-center bg-zinc-900 px-0.5 text-center text-[10px] leading-tight text-amber-200" lang="ko">{item.koreanName ?? item.name[0]}</span>}
       </span>
@@ -92,7 +100,7 @@ export function MenuManager({ categories, groups, library }: { categories: Categ
         {item.price == null ? <span className="text-zinc-400">{item.priceNote ?? "no price"}</span> : money(item.price)}
         {item.price != null && item.priceNote && <span className="block text-[11px] text-zinc-400">{item.priceNote}</span>}
       </span>
-      <div className="flex shrink-0 items-center gap-1">
+      <div className="flex w-full shrink-0 flex-wrap items-center justify-end gap-1 sm:w-auto">
         <Btn size="sm" variant="ghost" onClick={() => flag(item, "featured", !item.featured)} disabled={busy === item.id} title="Toggle featured">{item.featured ? "★" : "☆"}</Btn>
         <Btn size="sm" variant="ghost" onClick={() => flag(item, "active", !item.active)} disabled={busy === item.id}>{item.active ? "Hide" : "Show"}</Btn>
         <Btn size="sm" variant="ghost" onClick={() => duplicate(item)} disabled={busy === item.id}>Copy</Btn>
@@ -126,8 +134,8 @@ export function MenuManager({ categories, groups, library }: { categories: Categ
           {searchResults.length === 0 ? <div className="p-5"><EmptyState title="No items match" /></div> : <ul className="divide-y divide-zinc-100 px-4">{searchResults.map((i) => <li key={i.id}>{row(i, true)}</li>)}</ul>}
         </Card>
       ) : (
-        <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
-          <nav className="lg:sticky lg:top-8 lg:self-start" aria-label="Categories">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
+          <nav className="min-w-0 lg:sticky lg:top-8 lg:self-start" aria-label="Categories">
             <ul className="flex gap-1 overflow-x-auto lg:flex-col">
               {categories.map((c) => {
                 const count = c.sections.reduce((n, s) => n + s.items.length, 0);

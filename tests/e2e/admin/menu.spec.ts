@@ -82,6 +82,27 @@ test.describe("Admin menu CMS", () => {
     expect(await query(`select 1 from menu_items where name like $1`, [`${name}%`])).toHaveLength(0);
   });
 
+  test("menu manager fits a phone screen and ?new=1 opens the editor only once", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await gotoReady(page, "/admin/menu");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+    const edit = page.locator("main").getByRole("button", { name: "Edit", exact: true }).first();
+    const box = (await edit.boundingBox())!;
+    expect(box.x + box.width).toBeLessThanOrEqual(375);
+
+    await page.setViewportSize({ width: 1360, height: 900 });
+    await gotoReady(page, "/admin/menu?new=1");
+    await expect(page.getByRole("dialog", { name: "New menu item" })).toBeVisible();
+    await expect(page).not.toHaveURL(/new=1/);
+    await page.getByRole("dialog", { name: "New menu item" }).getByRole("button", { name: "Cancel" }).click();
+    await page.reload();
+    await expect(page.getByRole("dialog", { name: "New menu item" })).toHaveCount(0);
+
+    await gotoReady(page, "/admin/menu/categories");
+    await expect(page.locator("main")).toContainText("1 section · 8 items · follows restaurant hours");
+    await expect(page.locator("main")).not.toContainText("hours hours");
+  });
+
   test("categories and sections can be created and removed", async ({ page }) => {
     await gotoReady(page, "/admin/menu/categories");
     await page.getByRole("button", { name: "+ New category" }).click();

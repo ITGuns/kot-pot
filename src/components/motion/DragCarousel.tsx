@@ -6,7 +6,9 @@ import { cn } from "@/lib/cn";
 /**
  * Horizontal, snap-aligned carousel driven by native scrolling: touch swipe,
  * mouse drag, vertical-wheel → horizontal, arrow buttons, keyboard, plus a
- * progress bar. Children are the slides.
+ * progress bar. Children are the slides (<li>). Give the track matching
+ * padding and scroll-padding (e.g. "px-5 scroll-px-5") so the first slide
+ * snaps flush with the content edge.
  */
 export function DragCarousel({
   children,
@@ -34,8 +36,16 @@ export function DragCarousel({
     if (!el) return;
     const max = el.scrollWidth - el.clientWidth;
     setProgress(max <= 0 ? 1 : el.scrollLeft / max);
-    setAtStart(el.scrollLeft <= 2);
-    setAtEnd(el.scrollLeft >= max - 2);
+    // Compare the first/last slide against the snap edges rather than raw scrollLeft,
+    // so padding and snap alignment can't leave "Previous" enabled at the first slide.
+    const box = el.getBoundingClientRect();
+    const cs = getComputedStyle(el);
+    const padL = parseFloat(cs.scrollPaddingLeft) || 0;
+    const padR = parseFloat(cs.scrollPaddingRight) || 0;
+    const first = el.firstElementChild?.getBoundingClientRect();
+    const last = el.lastElementChild?.getBoundingClientRect();
+    setAtStart(el.scrollLeft <= 2 || !first || first.left >= box.left + padL - 2);
+    setAtEnd(el.scrollLeft >= max - 2 || !last || last.right <= box.right - padR + 2);
   }, []);
 
   useEffect(() => {
@@ -60,8 +70,9 @@ export function DragCarousel({
   const step = (dir: 1 | -1) => {
     const el = track.current;
     if (!el) return;
+    if ((dir < 0 && atStart) || (dir > 0 && atEnd)) return;
     const first = el.children[0] as HTMLElement | undefined;
-    const gap = first ? parseFloat(getComputedStyle(el).columnGap || "16") || 16 : 16;
+    const gap = parseFloat(getComputedStyle(el).columnGap || "16") || 16;
     const width = first ? first.offsetWidth + gap : el.clientWidth * 0.8;
     el.scrollBy({ left: dir * width, behavior: "smooth" });
   };
@@ -109,8 +120,9 @@ export function DragCarousel({
   };
 
   const dark = tone === "dark";
+  // aria-disabled (not the disabled attribute) keeps keyboard focus on the button at either end.
   const btn = cn(
-    "flex h-11 w-11 items-center justify-center rounded-full border transition disabled:opacity-30",
+    "flex h-11 w-11 items-center justify-center rounded-full border transition aria-disabled:cursor-default aria-disabled:opacity-30",
     dark ? "border-ivory-50/20 text-ivory-50 hover:bg-ivory-50/10" : "border-ink-900/15 text-ink-900 hover:bg-ink-900/5",
   );
 
@@ -139,12 +151,12 @@ export function DragCarousel({
           <span className="absolute inset-y-0 left-0 w-1/4 min-w-[48px] bg-chili-400 transition-transform duration-200" style={{ transform: `translateX(${progress * 300}%)` }} />
         </div>
         <div className="flex gap-2">
-          <button type="button" onClick={() => step(-1)} aria-label="Previous" className={btn} disabled={atStart}>
+          <button type="button" onClick={() => step(-1)} aria-label="Previous" className={btn} aria-disabled={atStart}>
             <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 4l-6 6 6 6" />
             </svg>
           </button>
-          <button type="button" onClick={() => step(1)} aria-label="Next" className={btn} disabled={atEnd}>
+          <button type="button" onClick={() => step(1)} aria-label="Next" className={btn} aria-disabled={atEnd}>
             <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M8 4l6 6-6 6" />
             </svg>

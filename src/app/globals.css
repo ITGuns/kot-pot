@@ -1,0 +1,241 @@
+@import "tailwindcss";
+
+@theme {
+  /* Palette — charcoal ink, warm ivory, dark wood, chili + garnet reds, bronze, grill steel, jade */
+  --color-ink-950: #0a0908;
+  --color-ink-900: #121010;
+  --color-ink-800: #1a1716;
+  --color-ink-700: #252020;
+  --color-ink-600: #342e2c;
+  --color-ink-500: #524845;
+  --color-ink-400: #7d716c;
+
+  --color-ivory-50: #faf5ea;
+  --color-ivory-100: #f3ebdb;
+  --color-ivory-200: #e8dbc2;
+  --color-ivory-300: #d5c4a3;
+  --color-ivory-400: #b9a281;
+
+  --color-wood-500: #7b4b2b;
+  --color-wood-600: #5f3820;
+  --color-wood-700: #452716;
+
+  --color-chili-300: #f4a084;
+  --color-chili-400: #e8603f;
+  --color-chili-500: #cc3a1e;
+  --color-chili-600: #a62b15;
+  --color-chili-700: #7e1f0f;
+
+  --color-garnet-600: #7c1627;
+  --color-garnet-700: #5b101c;
+  --color-garnet-800: #3e0a13;
+
+  --color-bronze-300: #e9cb95;
+  --color-bronze-400: #d5ad67;
+  --color-bronze-500: #bb914d;
+  --color-bronze-600: #8e6b37;
+
+  --color-steel-400: #9b9d9f;
+  --color-steel-600: #5e6164;
+
+  --color-jade-400: #71a37e;
+  --color-jade-500: #4d805d;
+  --color-jade-700: #355841;
+
+  --font-display: var(--font-display-serif), "Iowan Old Style", "Times New Roman", serif;
+  --font-sans: var(--font-sans-body), ui-sans-serif, system-ui, sans-serif;
+  --font-label: var(--font-label-condensed), "Oswald", Impact, sans-serif;
+  --font-korean: var(--font-korean), "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+
+  --shadow-card: 0 1px 2px rgb(10 9 8 / 0.08), 0 12px 32px -14px rgb(10 9 8 / 0.35);
+  --shadow-lift: 0 2px 4px rgb(10 9 8 / 0.12), 0 28px 56px -18px rgb(10 9 8 / 0.5);
+  --shadow-glow: 0 0 0 1px rgb(232 96 63 / 0.35), 0 12px 40px -10px rgb(204 58 30 / 0.6);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-steam-a: steam-a 40s ease-in-out infinite alternate;
+  --animate-steam-b: steam-b 52s ease-in-out infinite alternate;
+  --animate-steam-c: steam-c 64s ease-in-out infinite alternate;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-ember: ember 2.8s ease-in-out infinite;
+  --animate-ticker: ticker 46s linear infinite;
+  --animate-liquid: liquid 16s ease-in-out infinite alternate;
+  --animate-flicker: flicker 3.6s ease-in-out infinite;
+
+  @keyframes steam-a {
+    0% { transform: translate3d(-6%, 6%, 0) scale(1); }
+    100% { transform: translate3d(8%, -8%, 0) scale(1.18); }
+  }
+  @keyframes steam-b {
+    0% { transform: translate3d(10%, -2%, 0) scale(1.1); }
+    100% { transform: translate3d(-8%, 8%, 0) scale(0.95); }
+  }
+  @keyframes steam-c {
+    0% { transform: translate3d(0, 10%, 0) scale(1); }
+    100% { transform: translate3d(4%, -12%, 0) scale(1.22); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  @keyframes ember {
+    0%, 100% { opacity: 0.55; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.1); }
+  }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes liquid {
+    0% { transform: translate3d(-4%, 2%, 0) rotate(0deg) scale(1); }
+    100% { transform: translate3d(6%, -4%, 0) rotate(12deg) scale(1.15); }
+  }
+  @keyframes flicker {
+    0%, 100% { opacity: 0.75; }
+    40% { opacity: 1; }
+    60% { opacity: 0.6; }
+  }
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+  body {
+    @apply bg-ink-950 text-ivory-100 font-sans antialiased;
+  }
+  ::selection {
+    background: var(--color-chili-500);
+    color: var(--color-ivory-50);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-chili-400);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  h1, h2, h3 {
+    @apply font-display font-normal;
+    text-wrap: balance;
+  }
+  p { text-wrap: pretty; }
+  img { @apply select-none; }
+  button, [role="button"] { cursor: pointer; }
+  input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.6; }
+  :lang(ko), .korean { font-family: var(--font-korean); }
+}
+
+@utility eyebrow {
+  @apply font-label uppercase tracking-[0.24em] text-[0.8rem] leading-none;
+}
+@utility nav-label {
+  @apply font-label uppercase tracking-[0.2em] text-[15px] leading-none;
+}
+@utility container-site {
+  @apply mx-auto w-full max-w-[1360px] px-5 sm:px-8 lg:px-12;
+}
+@utility grain {
+  position: relative;
+  isolation: isolate;
+}
+@utility grain-after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.1;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+}
+@utility hairline-x {
+  background-image: linear-gradient(to right, transparent, color-mix(in oklab, currentColor 35%, transparent), transparent);
+  height: 1px;
+}
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+@utility skeleton {
+  background: linear-gradient(90deg, rgb(255 255 255 / 0.05) 25%, rgb(255 255 255 / 0.11) 37%, rgb(255 255 255 / 0.05) 63%);
+  background-size: 400% 100%;
+  animation: var(--animate-shimmer);
+}
+@utility skeleton-light {
+  background: linear-gradient(90deg, rgb(0 0 0 / 0.05) 25%, rgb(0 0 0 / 0.1) 37%, rgb(0 0 0 / 0.05) 63%);
+  background-size: 400% 100%;
+  animation: var(--animate-shimmer);
+}
+@utility text-shadow-hero {
+  text-shadow: 0 2px 28px rgb(0 0 0 / 0.5), 0 1px 2px rgb(0 0 0 / 0.55);
+}
+@utility mask-fade-b {
+  mask-image: linear-gradient(to bottom, black 70%, transparent);
+}
+@utility mask-fade-x {
+  mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+}
+@utility korean {
+  font-family: var(--font-korean);
+}
+@utility steel-sheen {
+  background-image: linear-gradient(135deg, rgb(255 255 255 / 0.08), transparent 35%, rgb(255 255 255 / 0.04) 60%, transparent);
+}
+
+/* Steam layers — pure CSS, GPU transforms only, reduced for small screens / reduced motion */
+.steam-layer {
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+  will-change: transform;
+  filter: blur(52px);
+  opacity: 0.55;
+}
+.steam-a {
+  background: radial-gradient(40% 35% at 30% 65%, rgb(250 245 234 / 0.28), transparent 70%);
+  animation: var(--animate-steam-a);
+}
+.steam-b {
+  background: radial-gradient(35% 45% at 70% 40%, rgb(233 203 149 / 0.2), transparent 70%);
+  animation: var(--animate-steam-b);
+}
+.steam-c {
+  background: radial-gradient(50% 30% at 50% 85%, rgb(204 58 30 / 0.22), transparent 70%);
+  animation: var(--animate-steam-c);
+}
+@media (max-width: 767px), (prefers-reduced-motion: reduce) {
+  .steam-layer { animation: none; filter: blur(36px); }
+}
+
+.liquid-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(70px);
+  pointer-events: none;
+  will-change: transform;
+  animation: var(--animate-liquid);
+}
+@media (prefers-reduced-motion: reduce) {
+  .liquid-blob { animation: none; }
+}
+
+.grain::after { @apply grain-after; }
+
+/* Admin base */
+.admin-body {
+  @apply bg-[#f4f4f2] text-[#1b1b1a];
+  color-scheme: light;
+  font-feature-settings: "tnum", "cv11";
+}

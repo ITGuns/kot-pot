@@ -12,8 +12,9 @@ Every fact on the site — name, tagline, description, rating, price range, serv
 | Styling | Tailwind CSS v4 · Instrument Serif (display) / Manrope (body) / Bebas Neue (labels) / Noto Sans KR (Korean) via `next/font` |
 | Motion | `motion` (Framer Motion 12): hero parallax + embers + steam, split-text reveals, drag carousel, broth selector, sauce builder, drag-and-drop admin ordering |
 | Database | Postgres via Drizzle ORM (`pg` driver). Local dev uses a bundled Postgres cluster; production works with Supabase's pooler. Admin uploads are stored in a `bytea` table so deployments need no disk or bucket. |
-| Auth | Signed HttpOnly JWT session cookie (`jose`), scrypt password hashes, middleware-protected `/admin`, server-side `requireAdmin()` on every mutation |
+| Auth | Signed HttpOnly JWT session cookie (`jose`) with a per-user token version (sign-out and password changes revoke every earlier token), scrypt password hashes, middleware-protected `/admin`, server-side `requireAdmin()` on every mutation |
 | Validation | Zod on every server action; typed field errors returned to forms; rate limiting on login and booking |
+| Headers | Content-Security-Policy, Permissions-Policy, HSTS (Vercel), X-Frame-Options, nosniff; `X-Powered-By` disabled |
 
 ## Quick start
 
